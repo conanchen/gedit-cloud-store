@@ -6,6 +6,7 @@ buildscript {
         GRPC_STARTER_VERSION = '2.1.4'
     }
     repositories {
+        maven {url "http://maven.aliyun.com/nexus/content/groups/public/"}
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
     }
@@ -28,7 +29,7 @@ group = 'conanchen'
 version =  '0.0.1-SNAPSHOT'
 
 jar {
-    baseName = 'gedit-cloud-hello'
+    baseName = 'gedit-cloud-store'
 }
 
 // tag::task[]
@@ -39,6 +40,7 @@ docker {
 }// end::task[]
 
 repositories {
+    maven {url "http://maven.aliyun.com/nexus/content/groups/public/"}
     mavenCentral()
     jcenter()
     maven { url 'https://jitpack.io' }
@@ -79,4 +81,7 @@ dependencies {
         exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
     }
     testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    // JPA Data (We are going to use Repositories, Entities, Hibernate, etc...)
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
