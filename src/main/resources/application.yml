@@ -33,7 +33,7 @@ spring:
     name: druid
     # 下面为连接池的补充设置，应用到上面所有数据源中
     druid:
-      # TODO 下面的3个参数在production中可以适当调整,使用相同key可以覆盖即可
+      # 下面的3个参数在production中可以适当调整,使用相同key可以覆盖即可
       initial-size: 5
       max-active: 20
       min-idle: 5
