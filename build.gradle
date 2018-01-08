@@ -94,7 +94,7 @@ dependencies {
     // lombok
     compileOnly 'org.projectlombok:lombok:1.16.18'
 
-    // druid
-    compile 'com.alibaba:druid-spring-boot-starter:1.1.6'
+    // hikari
+    compile 'com.zaxxer:HikariCP:2.7.4'
 
 }

@@ -1,13 +1,10 @@
-#datasource
+# pro环境
 spring:
   datasource:
     url: jdbc:mysql://rm-bp155px1rbia7zvl6.mysql.rds.aliyuncs.com:3306/gedit_store?zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
     username: qzd
     password: QZD1qaz2wsx
-
-    druid:
-      initial-size: 10
-      max-active: 50
-      min-idle: 10
-      max-wait: 60000
-      max-pool-prepared-statement-per-connection-size: 10
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 60000

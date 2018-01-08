@@ -29,50 +29,13 @@ spring:
         enabled: true
   # 数据库配置
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    name: druid
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    name: hikari
     # 下面为连接池的补充设置，应用到上面所有数据源中
-    druid:
-      # 下面的3个参数在production中可以适当调整,使用相同key可以覆盖即可
-      initial-size: 5
-      max-active: 20
-      min-idle: 5
-      max-wait: 60000
-      max-pool-prepared-statement-per-connection-size: 5
-      pool-prepared-statements: true
-      time-between-eviction-runs-millis: 60000
-      min-evictable-idle-time-millis: 300000
-      validation-query: SELECT 1 FROM DUAL
-      test-while-idle: true
-      test-on-borrow: false
-      test-on-return: false
-      filters:
-        - stat
-        - wall
-        - log4j
-      # WebStatFilter配置，说明请参考Druid Wiki，配置_配置WebStatFilter
-      web-stat-filter:
-        enabled: true
-        session-stat-enable: true
-        session-stat-max-count: 1000
-      # StatViewServlet配置，说明请参考Druid Wiki，配置_StatViewServlet配置
-      stat-view-servlet:
-          enabled: true
-          reset-enable: true
-          login-username: druid
-          login-password: druid
-          allow: 127.0.0.1
-      # 配置StatFilter
-      filter:
-          stat:
-            db-type: mysql
-            log-slow-sql: true
-            slow-sql-millis: 1000
-      # 配置WallFilter
-          wall:
-              enabled: true
-              db-type: mysql
-              config:
-                delete-allow: false
-                drop-table-allow: false
-    
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 60000
+      connection-test-query: select 1 from dual
+      pool-name: gedit_store
