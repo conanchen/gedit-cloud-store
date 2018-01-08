@@ -1,5 +1,8 @@
-package com.github.conanchen.gedit.hello.grpc;
+package com.github.conanchen.gedit.store.grpc;
 
+import com.github.conanchen.gedit.hello.grpc.HelloGrpc;
+import com.github.conanchen.gedit.hello.grpc.HelloReply;
+import com.github.conanchen.gedit.hello.grpc.HelloRequest;
 import com.google.gson.Gson;
 import io.grpc.stub.StreamObserver;
 import org.lognet.springboot.grpc.GRpcService;
@@ -14,7 +17,7 @@ public class HelloService extends HelloGrpc.HelloImplBase {
     private static final Gson gson = new Gson();
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    @Override
+   /* @Override
     public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
         final HelloReply.Builder replyBuilder = HelloReply.newBuilder()
                 .setId(System.currentTimeMillis())
@@ -25,5 +28,5 @@ public class HelloService extends HelloGrpc.HelloImplBase {
         responseObserver.onNext(helloReply);
         log.info(String.format("HelloService.sayHello() %d:%s gson=%s", helloReply.getId(), helloReply.getMessage(), gson.toJson(helloReply)));
         responseObserver.onCompleted();
-    }
+    }*/
 }

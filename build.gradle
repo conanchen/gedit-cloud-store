@@ -83,11 +83,18 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
     // JPA Data (We are going to use Repositories, Entities, Hibernate, etc...)
-    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile ('org.springframework.boot:spring-boot-starter-data-jpa') {
+        force true
+        exclude group: 'org.apache.tomcat',module: 'tomcat-jdbc'
+    }
 
     // Use MySQL Connector-J
     compile 'mysql:mysql-connector-java'
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.16.18'
+
+    // druid
+    compile 'com.alibaba:druid-spring-boot-starter:1.1.6'
+
 }
