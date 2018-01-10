@@ -1,7 +1,8 @@
-package com.github.conanchen.gedit.store.grpc;
+package com.github.conanchen.gedit.store.config;
 
 import com.google.gson.Gson;
 import io.grpc.*;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -9,9 +10,9 @@ import org.springframework.stereotype.Component;
 /**
  * Created by conanchen on 9/7/16.
  */
+@Slf4j
 @Component
 public class LogInterceptor implements ServerInterceptor {
-    private static final Logger log = LoggerFactory.getLogger(LogInterceptor.class);
     private static final Gson gson = new Gson();
 
     @Override

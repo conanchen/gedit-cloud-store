@@ -12,12 +12,16 @@ import java.util.Date;
 @EnableAutoConfiguration
 public class HelloController {
     private final static Gson gson = new Gson();
-//
+    //
 //    @Autowired
 //    private WordRepository wordRepository;
+    @Value("${gedit.docker.enabled}")
+    Boolean insideDocker = false;
 
     @RequestMapping(value = "/hello")
     public String hello() {
-        return "hello@" + DateFormat.getInstance().format(new Date()) + ", HelloController Spring Boot ";
+        return
+                String.format("hello@%s , HelloController Spring Boot insideDocker=%b",
+                        DateFormat.getInstance().format(new Date()), insideDocker);
     }
 }
