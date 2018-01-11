@@ -70,8 +70,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     @Override
     public void update(UpdateRequest request, StreamObserver<UpdateResponse> responseObserver) {
-       /* Claims claims = AuthInterceptor.USER_CLAIMS.get();
-        log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));*/
+        Claims claims = AuthInterceptor.USER_CLAIMS.get();
+        log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
         StoreProfile profile = (StoreProfile) profileRepository.findOne(request.getUuid());
         BeanUtils.copyProperties(request,profile);
         profile.setDescr(request.getDesc());

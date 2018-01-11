@@ -33,6 +33,8 @@ public class TestClient {
         Iterator<StoreProfileResponse> responses = blockingStub.list(request);
         responses.forEachRemaining(n -> System.out.println("row " + n.getStoreProfile().getFrom()+ " :" + gson.toJson(n)));
     }
+
+    //测试时删除给profileService @grpcService设置applyGlobalInterceptors false并注释掉下面list方法中的用户访问日志
     public static void main(String[] args) throws InterruptedException {
         TestClient client = new TestClient("127.0.0.1",8980);
         for(int i=0;i<5;i++){
