@@ -10,5 +10,7 @@
 - skip test
   - $ gradle build -x test
   - $  
-  
+- refresh dependencies
+  - $ gradle build --refresh-dependencies
+  - $ in itellij idea,open gradle navigate view,click refresh button in the top left of view
   
