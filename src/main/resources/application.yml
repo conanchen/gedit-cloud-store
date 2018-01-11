@@ -3,6 +3,16 @@ org:
     boot:
       autoconfigure:
         EnableAutoConfiguration: org.ditto.easyhan.config.SpringConfig
+
+gedit:
+  docker:
+    enabled: false
+    cloud:
+      config:
+        server:
+          git:
+            uri:
+            clone-on-start: true
 security:
   basic:
     enabled:
@@ -15,6 +25,8 @@ grpc:
 server:
   port: 8088
 spring:
+  profiles:
+    active: dev
   jpa:
     database: mysql
     show-sql: true

@@ -1,29 +1,35 @@
 package com.github.conanchen.gedit.store.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class StoreMember {
+public class StoreWorker {
+    /**
+     * 用户id
+     */
     @Id
     @Column(columnDefinition = "char(32)")
-    private String memberId;
+    private String workerId;
 
     @Column(columnDefinition = "tinyint(1)")
     private Boolean active;
-    @ManyToOne
-    @JoinColumn(name = "store_profile_id")
-    private StoreProfile storeProfile;
 
-    @Column(columnDefinition = "varchar(16)")
-    private String memberType;
+    @Column(columnDefinition = "char(32)")
+    private String storeId;
 
     @Column(columnDefinition = "datetime")
-    private Date createDate;
+    private Date createdDate;
 
     @Column(columnDefinition = "datetime")
-    private Date updateDate;
+    private Date updatedDate;
 }

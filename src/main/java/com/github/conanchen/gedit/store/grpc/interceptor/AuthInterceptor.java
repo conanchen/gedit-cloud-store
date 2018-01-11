@@ -1,4 +1,4 @@
-package com.github.conanchen.gedit.store.config;
+package com.github.conanchen.gedit.store.grpc.interceptor;
 
 import com.google.gson.Gson;
 import io.grpc.*;
@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -17,6 +18,7 @@ import javax.crypto.SecretKey;
  */
 @Slf4j
 @Component
+@GRpcGlobalInterceptor
 public class AuthInterceptor implements ServerInterceptor {
     private final static Gson gson = new Gson();
 
@@ -36,6 +38,7 @@ public class AuthInterceptor implements ServerInterceptor {
 
         // You need to implement validateIdentity
         Claims identity = validateIdentity(headers);
+        // TODO expiration check
         if (identity == null) { // this is optional, depending on your needs
             // Assume user not authenticated
             call.close(Status.UNAUTHENTICATED.withDescription("authorization failed"),

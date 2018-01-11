@@ -1,13 +1,13 @@
 package com.github.conanchen.gedit.store.grpc;
 
-import com.github.conanchen.gedit.store.config.LogInterceptor;
-import com.github.conanchen.gedit.store.config.AuthInterceptor;
+import com.github.conanchen.gedit.store.grpc.interceptor.LogInterceptor;
+import com.github.conanchen.gedit.store.grpc.interceptor.AuthInterceptor;
 import com.github.conanchen.gedit.store.member.grpc.*;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 @Slf4j
-@GRpcService(interceptors = {AuthInterceptor.class, LogInterceptor.class})
+@GRpcService(interceptors = {LogInterceptor.class ,AuthInterceptor.class,})
 public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
 
     /**
@@ -15,7 +15,7 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
      */
     @Override
     public void add(AddRequest request, StreamObserver<MembershipResponse> responseObserver) {
-        super.add(request, responseObserver);
+
     }
 
     @Override

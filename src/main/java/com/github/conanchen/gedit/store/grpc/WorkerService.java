@@ -1,8 +1,7 @@
 package com.github.conanchen.gedit.store.grpc;
 
-import com.github.conanchen.gedit.store.config.AuthInterceptor;
-import com.github.conanchen.gedit.store.config.LogInterceptor;
-import com.github.conanchen.gedit.store.search.grpc.*;
+import com.github.conanchen.gedit.store.grpc.interceptor.AuthInterceptor;
+import com.github.conanchen.gedit.store.grpc.interceptor.LogInterceptor;
 import com.github.conanchen.gedit.store.worker.grpc.*;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;

@@ -1,5 +1,6 @@
 spring:
   datasource:
     url: jdbc:mysql://192.168.1.200:3306/gedit_store?useSSL=false
-    username: root
-    password: Qizhidao!123456
+    hikari:
+      username: root
+      password: Qizhidao!123456

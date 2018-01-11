@@ -50,7 +50,6 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-
 dependencies {
 
     compile 'com.github.conanchen.gedit-api-grpc:grpc-java:master-SNAPSHOT'
@@ -76,6 +75,7 @@ dependencies {
     }
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
+        exclude group: 'com.fasterxml.jackson.core',module: 'jackson-databind'
     }
     compile("org.springframework.boot:spring-boot-starter-actuator") {
         exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
@@ -97,4 +97,9 @@ dependencies {
     // hikari
     compile 'com.zaxxer:HikariCP:2.7.4'
 
+    // jwt
+    compile 'io.jsonwebtoken:jjwt:0.9.0'
+
+    //validation
+    compile 'com.martiansoftware:hope-and-doubt:0.1.0'
 }
