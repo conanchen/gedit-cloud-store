@@ -98,7 +98,9 @@ dependencies {
     compile 'com.zaxxer:HikariCP:2.7.4'
 
     // jwt
-    compile 'io.jsonwebtoken:jjwt:0.9.0'
+    compile ('io.jsonwebtoken:jjwt:0.9.0'){
+        exclude group: 'com.fasterxml.jackson.core',module: 'jackson-databind'
+    }
 
     //validation
     compile 'com.martiansoftware:hope-and-doubt:0.1.0'
