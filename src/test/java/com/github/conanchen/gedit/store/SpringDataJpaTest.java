@@ -48,6 +48,11 @@ public class SpringDataJpaTest {
         slice(0,100,"0");
     }
 
+    @Test
+    public void existsTest(){
+        repository.existsByNameAndOwnerIdNotIn("name15155856292940","ff80818160dff1620160dff16c7d0000");
+    }
+
     private void slice(int from,int size,String type){
         int tempForm = from == 0 ? 0 : from + 1;
         Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));

@@ -58,6 +58,7 @@ public class ProfileInterceptor implements ServerInterceptor {
                     call.close(Status.INVALID_ARGUMENT.withDescription(e.getMessage()),new Metadata());
                 }
             }
+
         };
     }
 
@@ -66,7 +67,7 @@ public class ProfileInterceptor implements ServerInterceptor {
 
     private void checkCreate(CreateRequest req){
         //common check
-        createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictId(),req.getLocation());
+        createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictUuid(),req.getLocation());
         if (profileRepository.findByName(req.getName()) != null){
             throw new UncheckedValidationException("商户名已存在");
         }
@@ -80,13 +81,19 @@ public class ProfileInterceptor implements ServerInterceptor {
                 .isTrue(n -> n.length() <= 255,"logo不能超过255个字,如有必要请联系工程师");
 
         //common check
-        createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictId(),req.getLocation());
+        createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictUuid(),req.getLocation());
 
-        //check th current user is the store ownner
+        //check th current user is the store owner
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         StoreProfile storeProfile = (StoreProfile) profileRepository.findOne(claims.getSubject());
         if (!storeProfile.getOwnerId().equals(req.getUuid())){
             log.info("user [{}] not owned the store [{}]",claims.getSubject(),req.getUuid());
+            throw new UncheckedValidationException("No authority");
+        }
+        //check store name reuse
+        boolean exist = profileRepository.existsByNameAndOwnerIdNotIn(req.getName(),claims.getSubject());
+        if (exist){
+            throw new UncheckedValidationException("商户名已存在");
         }
     }
 
@@ -114,10 +121,10 @@ public class ProfileInterceptor implements ServerInterceptor {
         Hope.that(name).isNotNullOrEmpty()
                 .isTrue(n -> n.length() <= 64,"商户名称不能超过64个字");
         //detailAddress
-        Hope.that(detailAddress).orElse(EMPTY_STRING).isPresent()
+        Hope.that(detailAddress).orElse(EMPTY_STRING).isNotNullOrEmpty()
                 .isTrue(n -> n.length() <= 512,"详细地址不能超过255个字");
         //districtUuid
-        Hope.that(districtId).orElse(EMPTY_STRING).isPresent()
+        Hope.that(districtId).orElse(EMPTY_STRING).isNotNullOrEmpty()
                 .isTrue(n -> n.length() <= 6,"地区码为6位数字,如有必要请联系工程师");
         //location
         checkLocation(location);

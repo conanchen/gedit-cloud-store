@@ -9,7 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
-import org.springframework.stereotype.Component;
+import org.springframework.core.annotation.Order;
 
 import javax.crypto.SecretKey;
 
@@ -17,7 +17,7 @@ import javax.crypto.SecretKey;
  * Interceptor that validates user's identity.
  */
 @Slf4j
-@Component
+@Order(20)
 @GRpcGlobalInterceptor
 public class AuthInterceptor implements ServerInterceptor {
     private final static Gson gson = new Gson();

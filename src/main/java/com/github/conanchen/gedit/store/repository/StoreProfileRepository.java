@@ -11,4 +11,6 @@ public interface StoreProfileRepository<T,String extends Serializable> extends J
     StoreProfile findByName(String name);
 
     List<StoreProfile> findByType(String type, Pageable request);
+
+    boolean existsByNameAndOwnerIdNotIn(String name,String ownerId);
 }

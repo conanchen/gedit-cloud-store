@@ -16,13 +16,15 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .ownerId(claims.getSubject())
                 .active(true)
                 .detailAddress(request.getDetailAddress())
-                .districtUuid(request.getDistrictId())
+                .districtUuid(request.getDistrictUuid())
                 .name(request.getName())
                 .lat(request.getLocation().getLat())
                 .lon(request.getLocation().getLon())
@@ -68,8 +70,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     @Override
     public void update(UpdateRequest request, StreamObserver<UpdateResponse> responseObserver) {
-        Claims claims = AuthInterceptor.USER_CLAIMS.get();
-        log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
+       /* Claims claims = AuthInterceptor.USER_CLAIMS.get();
+        log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));*/
         StoreProfile profile = (StoreProfile) profileRepository.findOne(request.getUuid());
         BeanUtils.copyProperties(request,profile);
         profile.setDescr(request.getDesc());
@@ -101,11 +103,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     @Override
     public void list(ListRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
-        Integer from = Hope.that(request.getFrom()).isPresent().value();
+        Integer from = Hope.that(request.getFrom()).isNotNull().value();
 
-        Integer size = Hope.that(request.getSize()).isPresent().value();
+        Integer size = Hope.that(request.getSize()).isNotNull().value();
 
-        final int tempForm = from == 0 ? 0 : from + 1;
+        int tempForm = from == 0 ? 0 : from + 1;
         Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));
         List<StoreProfile> list;
         if (!StringUtils.isEmpty(request.getType())) {
@@ -114,10 +116,10 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
             list = profileRepository.findAll(pageable).getContent();
         }
         for (StoreProfile profile : list){
-            responseObserver.onNext(modelToRep(profile,tempForm));
+            responseObserver.onNext(modelToRep(profile, tempForm++));
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
         }
         responseObserver.onCompleted();
-        log.info("store list access success");
     }
 
     @Override
@@ -141,14 +143,15 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         //copy properties
         BeanUtils.copyProperties(profile,grpcStoreProfile);
         com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile= com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
-                .setDesc(profile.getDescr())
-                .addAllImages(gson.fromJson(profile.getImages(),listStrType))
-                .setLocation(Location.newBuilder().setLat(profile.getLat()).setLon(profile.getLon()).build())
-                .setFrom(from++)
+                .setDesc(Hope.that(profile.getDescr()).orElse("").value())
+                .addAllImages((Iterable<String>) Hope.that(gson.fromJson(profile.getImages(),listStrType)).orElse(Collections.EMPTY_LIST).value())
+                .setLocation(Location.newBuilder().setLat(Hope.that(profile.getLat()).orElse(0.0D).value()).setLon(Hope.that(profile.getLon()).orElse(0.0D).value()).build())
+                .setFrom(from)
                 .build();
         StoreProfileResponse response = StoreProfileResponse.newBuilder()
                 .setStoreProfile(newGrpcStoreProfile)
                 .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode())).setDetails("success")).build();
         return response;
     }
+
 }

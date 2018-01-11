@@ -4,15 +4,13 @@ import com.google.gson.Gson;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.core.annotation.Order;
 
 /**
  * Created by conanchen on 9/7/16.
  */
 @Slf4j
-@Component
+@Order(10)
 @GRpcGlobalInterceptor
 public class LogInterceptor implements ServerInterceptor {
     private static final Gson gson = new Gson();
