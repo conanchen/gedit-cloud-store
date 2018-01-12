@@ -19,12 +19,12 @@ public class LogInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                                                                  ServerCallHandler<ReqT, RespT> next) {
 
-        log.info(String.format(
-                "call.getMethodDescriptor().getFullMethodName()=[%s]\n headers.keys=[%s],\n remote=%s",
+        log.info(
+                "call.getMethodDescriptor().getFullMethodName()={}\n headers.keys={},\n remote={}",
                 call.getMethodDescriptor().getFullMethodName(),
-                "-" + gson.toJson(headers.keys()),
+                gson.toJson(headers.keys()),
                 call.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)
-                )
+
         );
         //TODO: https://stackoverflow.com/questions/40112374/how-do-i-access-request-metadata-for-a-java-grpc-service-i-am-defining
         return next.startCall(call, headers);
