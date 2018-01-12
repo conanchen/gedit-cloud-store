@@ -233,6 +233,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
         return UpdateResponse.newBuilder()
                 .setUuid(profile.getUuid())
+                .setLastUpdated(profile.getUpdatedDate().getTime())
                 .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode().value())).setDetails("更新成功").build())
                 .build();
     }
