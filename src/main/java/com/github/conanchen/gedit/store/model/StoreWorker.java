@@ -14,18 +14,15 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 public class StoreWorker {
-    /**
-     * 用户id
-     */
-    @Id
+
     @Column(columnDefinition = "char(32)")
     private String workerId;
 
-    @Column(columnDefinition = "tinyint(1)")
-    private Boolean active;
-
     @Column(columnDefinition = "char(32)")
     private String storeId;
+
+    @Column(columnDefinition = "tinyint(1)")
+    private Boolean active;
 
     @Column(columnDefinition = "datetime")
     private Date createdDate;
