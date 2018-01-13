@@ -11,10 +11,6 @@ import org.lognet.springboot.grpc.GRpcService;
 @GRpcService(interceptors = {AuthInterceptor.class, LogInterceptor.class})
 public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
 
-    public WorkerService() {
-        super();
-    }
-
     @Override
     public void add(AddRequest request, StreamObserver<WorkshipResponse> responseObserver) {
         super.add(request, responseObserver);
