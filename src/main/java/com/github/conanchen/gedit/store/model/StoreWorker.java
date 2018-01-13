@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,6 +15,12 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 public class StoreWorker {
+    @Id
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @Column(columnDefinition = "char(32)")
+    private String uuid;
+
 
     @Column(columnDefinition = "char(32)")
     private String workerId;
