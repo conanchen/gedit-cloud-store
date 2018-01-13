@@ -56,13 +56,13 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     private StoreProfileRepository profileRepository;
 
     @Override
-    public void create(CreateRequest request, StreamObserver<CreateResponse> responseObserver) {
+    public void create(CreateStoreRequest request, StreamObserver<CreateStoreResponse> responseObserver) {
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
         try {
             responseObserver.onNext(checkCreate(request));
         }catch (Exception e){
-            CreateResponse response = CreateResponse.newBuilder()
+            CreateStoreResponse response = CreateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode().value())).setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
@@ -73,11 +73,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
     @Override
-    public void update(UpdateRequest request, StreamObserver<UpdateResponse> responseObserver) {
+    public void update(UpdateStoreRequest request, StreamObserver<UpdateStoreResponse> responseObserver) {
         try {
             responseObserver.onNext(checkUpdate(request));
         }catch (UncheckedValidationException e){
-            UpdateResponse response = UpdateResponse.newBuilder()
+            UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode().value())).setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
@@ -89,7 +89,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
     @Override
-    public void get(GetRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
+    public void get(GetStoreRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
 
@@ -151,7 +151,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
     @Override
-    public void ban(BanRequest request, StreamObserver<BanResponse> responseObserver) {
+    public void ban(BanStoreRequest request, StreamObserver<BanStoreResponse> responseObserver) {
         //ban
     }
 
@@ -171,7 +171,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         return response;
     }
 
-    private CreateResponse checkCreate(CreateRequest req) {
+    private CreateStoreResponse checkCreate(CreateStoreRequest req) {
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
         //common check
@@ -192,7 +192,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .build();
         profileRepository.save(storeProfile);
 
-        return CreateResponse.newBuilder()
+        return CreateStoreResponse.newBuilder()
                 .setName(storeProfile.getName())
                 .setUuid(storeProfile.getUuid())
                 .setOwnerId(storeProfile.getOwnerId())
@@ -200,7 +200,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .build();
     }
 
-    private UpdateResponse checkUpdate(UpdateRequest req){
+    private UpdateStoreResponse checkUpdate(UpdateStoreRequest req){
         //uuid
         Hope.that(req.getUuid()).isNotNullOrEmpty();
         //logo
@@ -231,14 +231,14 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         profile.setUpdatedDate(new Date());
         profileRepository.save(profile);
 
-        return UpdateResponse.newBuilder()
+        return UpdateStoreResponse.newBuilder()
                 .setUuid(profile.getUuid())
                 .setLastUpdated(profile.getUpdatedDate().getTime())
                 .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode().value())).setDetails("更新成功").build())
                 .build();
     }
 
-    private void checkBan(BanRequest req) {
+    private void checkBan(BanStoreRequest req) {
         //supper user check
     }
 
