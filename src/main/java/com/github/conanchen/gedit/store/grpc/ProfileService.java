@@ -38,8 +38,7 @@ import static io.grpc.Status.INVALID_ARGUMENT;
 @GRpcService(applyGlobalInterceptors = false)
 public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase {
 
-    private static final Type listStrType = new TypeToken<ArrayList<String>>() {
-    }.getType();
+    private static final Type listStrType = new TypeToken<ArrayList<String>>() {}.getType();
     private static final Gson gson = new GsonBuilder().setDateFormat(DateFormat.MILLISECOND_FIELD).create();
 
     private static final String EMPTY_STRING = "";
@@ -62,12 +61,12 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
         try {
             responseObserver.onNext(checkCreate(request));
-        } catch (Exception e) {
+        }catch (Exception e){
             CreateResponse response = CreateResponse.newBuilder()
-                    .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode())).setDetails(e.getMessage()).build())
+                    .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode().value())).setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
-        } finally {
+        }finally {
             responseObserver.onCompleted();
             log.info("store create access success");
         }
@@ -77,12 +76,12 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     public void update(UpdateRequest request, StreamObserver<UpdateResponse> responseObserver) {
         try {
             responseObserver.onNext(checkUpdate(request));
-        } catch (UncheckedValidationException e) {
+        }catch (UncheckedValidationException e){
             UpdateResponse response = UpdateResponse.newBuilder()
-                    .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode())).setDetails(e.getMessage()).build())
+                    .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode().value())).setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
-        } finally {
+        }finally {
 
             responseObserver.onCompleted();
             log.info("store update access success");
@@ -98,10 +97,10 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         try {
             String uuid = Hope.that(request.getUuid()).isNotNullOrEmpty().value();
             StoreProfile profile = (StoreProfile) profileRepository.findOne(uuid);
-            responseObserver.onNext(modelToRep(profile, 0));
-        } catch (UncheckedValidationException e) {
+            responseObserver.onNext(modelToRep(profile,0));
+        }catch (UncheckedValidationException e){
             responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
-        } finally {
+        }finally {
             responseObserver.onCompleted();
             log.info("store update access success");
         }
@@ -111,28 +110,26 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     @Override
     public void list(ListRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
         try {
-            Integer from = Hope.that(request.getFrom()).isNotNull().isTrue(n -> n >= 0, "from must be greater than or equals：%s", 0).value();
-            Integer size = Hope.that(request.getSize()).isNotNull().isTrue(n -> n > 0, "size must be greater than %s", 0).value();
+            Integer from = Hope.that(request.getFrom()).isNotNull().isTrue(n -> n >= 0,"from must be greater than or equals：%s",0).value();
+            Integer size = Hope.that(request.getSize()).isNotNull().isTrue(n -> n > 0,"size must be greater than %s",0).value();
             int tempForm = from == 0 ? 0 : from + 1;
-            Pageable pageable = new OffsetBasedPageRequest(tempForm, size, new Sort(Sort.Direction.ASC, "createdDate"));
+            Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));
             List<StoreProfile> list = null;
             if (!StringUtils.isEmpty(request.getType())) {
-                list = profileRepository.findByType(request.getType(), pageable);
-            } else {
+                list = profileRepository.findByType(request.getType(),pageable);
+            }else{
                 list = profileRepository.findAll(pageable).getContent();
             }
-            for (StoreProfile profile : list) {
+            for (StoreProfile profile : list){
                 responseObserver.onNext(modelToRep(profile, tempForm++));
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                }
+                try { Thread.sleep(500); } catch (InterruptedException e) {}
             }
-        } catch (UncheckedValidationException e) {
+        }catch (UncheckedValidationException e){
             responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
-        } finally {
+        }finally {
             responseObserver.onCompleted();
         }
+
 
 
     }
@@ -145,9 +142,9 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
             String name = Hope.that(request.getName()).isNotNullOrEmpty().value();
             StoreProfile profile = profileRepository.findByName(name);
             responseObserver.onNext(modelToRep(profile, 0));
-        } catch (UncheckedValidationException e) {
+        }catch (UncheckedValidationException e){
             responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
-        } finally {
+        }finally {
             responseObserver.onCompleted();
         }
         log.info("store get access success");
@@ -158,19 +155,19 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         //ban
     }
 
-    private StoreProfileResponse modelToRep(StoreProfile profile, Integer from) {
+    private StoreProfileResponse modelToRep(StoreProfile profile,Integer from){
         com.github.conanchen.gedit.store.profile.grpc.StoreProfile grpcStoreProfile = com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder().build();
         //copy properties
-        BeanUtils.copyProperties(profile, grpcStoreProfile);
-        com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile = com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
+        BeanUtils.copyProperties(profile,grpcStoreProfile);
+        com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile= com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
                 .setDesc(Hope.that(profile.getDescr()).orElse("").value())
-                .addAllImages((Iterable<String>) Hope.that(gson.fromJson(profile.getImages(), listStrType)).orElse(Collections.EMPTY_LIST).value())
+                .addAllImages((Iterable<String>) Hope.that(gson.fromJson(profile.getImages(),listStrType)).orElse(Collections.EMPTY_LIST).value())
                 .setLocation(Location.newBuilder().setLat(Hope.that(profile.getLat()).orElse(0.0D).value()).setLon(Hope.that(profile.getLon()).orElse(0.0D).value()).build())
                 .setFrom(from)
                 .build();
         StoreProfileResponse response = StoreProfileResponse.newBuilder()
                 .setStoreProfile(newGrpcStoreProfile)
-                .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode())).setDetails("success")).build();
+                .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode().value())).setDetails("success")).build();
         return response;
     }
 
@@ -180,59 +177,53 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         //common check
         createOrUpdateCommonCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
         if (profileRepository.findByName(req.getName()) != null) {
-//            throw new StatusRuntimeException(ALREADY_EXISTS.withDescription("商户名已存在"));
-            return CreateResponse.newBuilder()
-                    .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(io.grpc.Status.INVALID_ARGUMENT.getCode()))
-                            .setDetails("商户名已存在").build())
-                    .build();
-        } else {
-            StoreProfile storeProfile = StoreProfile.builder()
-                    .ownerId(claims.getSubject())
-                    .active(true)
-                    .detailAddress(req.getDetailAddress())
-                    .districtUuid(req.getDistrictUuid())
-                    .name(req.getName())
-                    .lat(req.getLocation().getLat())
-                    .lon(req.getLocation().getLon())
-                    .createdDate(new Date())
-                    .updatedDate(new Date())
-                    .build();
-            profileRepository.save(storeProfile);
-
-            return CreateResponse.newBuilder()
-                    .setName(storeProfile.getName())
-                    .setUuid(storeProfile.getUuid())
-                    .setOwnerId(storeProfile.getOwnerId())
-                    .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode())).setDetails("新增成功").build())
-                    .build();
+            throw new StatusRuntimeException(ALREADY_EXISTS.withDescription("商户名已存在"));
         }
+        StoreProfile storeProfile = StoreProfile.builder()
+                .ownerId(claims.getSubject())
+                .active(true)
+                .detailAddress(req.getDetailAddress())
+                .districtUuid(req.getDistrictUuid())
+                .name(req.getName())
+                .lat(req.getLocation().getLat())
+                .lon(req.getLocation().getLon())
+                .createdDate(new Date())
+                .updatedDate(new Date())
+                .build();
+        profileRepository.save(storeProfile);
+
+        return CreateResponse.newBuilder()
+                .setName(storeProfile.getName())
+                .setUuid(storeProfile.getUuid())
+                .setOwnerId(storeProfile.getOwnerId())
+                .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode().value())).setDetails("新增成功").build())
+                .build();
     }
 
-    private UpdateResponse checkUpdate(UpdateRequest req) {
+    private UpdateResponse checkUpdate(UpdateRequest req){
         //uuid
         Hope.that(req.getUuid()).isNotNullOrEmpty();
         //logo
         Hope.that(req.getLogo()).isTrue(n -> n == null || URL_REGEX.matcher(n).matches()).orElse(EMPTY_STRING)
-                .isTrue(n -> n.length() <= 255, "logo不能超过%s个字,如有必要请联系工程师", 255);
+                .isTrue(n -> n.length() <= 255,"logo不能超过%s个字,如有必要请联系工程师",255);
         //common check
-        createOrUpdateCommonCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
+        createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictUuid(),req.getLocation());
 
         //check th current user is the store owner
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
         StoreProfile storeProfile = (StoreProfile) profileRepository.findOne(claims.getSubject());
-        if (!storeProfile.getOwnerId().equals(req.getUuid())) {
-            log.info("user [{}] not owned the store [{}]", claims.getSubject(), req.getUuid());
+        if (!storeProfile.getOwnerId().equals(req.getUuid())){
+            log.info("user [{}] not owned the store [{}]",claims.getSubject(),req.getUuid());
             throw new UncheckedValidationException("No authority");
         }
         //check store name reuse
-        boolean exist = profileRepository.existsByNameAndOwnerIdNotIn(req.getName(), claims.getSubject());
-        if (exist) {
+        boolean exist = profileRepository.existsByNameAndOwnerIdNotIn(req.getName(),claims.getSubject());
+        if (exist){
             throw new StatusRuntimeException(ALREADY_EXISTS.withDescription("商户名已存在"));
         }
         StoreProfile profile = (StoreProfile) profileRepository.findOne(req.getUuid());
-        BeanUtils.copyProperties(req, profile);
+        BeanUtils.copyProperties(req,profile);
         profile.setDescr(req.getDesc());
         profile.setLon(req.getLocation().getLon());
         profile.setLat(req.getLocation().getLat());
@@ -242,7 +233,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
         return UpdateResponse.newBuilder()
                 .setUuid(profile.getUuid())
-                .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode())).setDetails("更新成功").build())
+                .setLastUpdated(profile.getUpdatedDate().getTime())
+                .setStatus(Status.newBuilder().setCode(String.valueOf(io.grpc.Status.OK.getCode().value())).setDetails("更新成功").build())
                 .build();
     }
 
@@ -251,23 +243,23 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
 
-    private void createOrUpdateCommonCheck(String name, String detailAddress, String districtId, Location location) {
+    private void createOrUpdateCommonCheck(String name,String detailAddress, String districtId,Location location){
 
         //name 长度限制
         Hope.that(name).isNotNullOrEmpty()
-                .isTrue(n -> n.length() <= 64, "商户名称不能超过%s个字", 64);
+                .isTrue(n -> n.length() <= 64,"商户名称不能超过%s个字",64);
         //detailAddresss
         Hope.that(detailAddress).orElse(EMPTY_STRING).isNotNullOrEmpty()
-                .isTrue(n -> n.length() <= 512, "详细地址不能超过%s个字", 512);
+                .isTrue(n -> n.length() <= 512,"详细地址不能超过%s个字",512);
         //districtUuid
         Hope.that(districtId).orElse(EMPTY_STRING).isNotNullOrEmpty()
-                .isTrue(n -> n.length() <= 6, "地区码为%s位数字,如有必要请联系工程师", 6);
+                .isTrue(n -> n.length() <= 6,"地区码为%s位数字,如有必要请联系工程师",6);
         //location
         checkLocation(location);
     }
 
-    private void checkLocation(Location location) {
-        if ((location.getLat() != 0.0D && location.getLon() == 0.0D) || (location.getLat() == 0.0D && location.getLon() != 0.0D)) {
+    private void checkLocation(Location location){
+        if ((location.getLat() != 0.0D && location.getLon() == 0.0D) || (location.getLat() == 0.0D && location.getLon() != 0.0D)){
             // ignore
             throw new UncheckedValidationException("location may lat or lon not exists");
         }
