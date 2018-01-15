@@ -17,4 +17,7 @@
    rm -rf /home/administrator/.gradle/caches/modules-2/files-2.1/com.github.conanchen.gedit-api-grpc/
    ```
    and then open gradle navigate view,click refresh button in the top left of view
-  
+- run jar file
+  ```
+  nohup java -Dspring.profiles.active=dev -jar /root/gedit-cloud-store-0.0.1-SNAPSHOT.jar>log/gedit_user/user.log &
+  ```

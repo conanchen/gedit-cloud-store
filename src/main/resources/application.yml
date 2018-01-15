@@ -54,3 +54,20 @@ spring:
 jjwt:
   sigin:
     key: shuai
+
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://192.168.1.200:3306/gedit_store?useSSL=false
+    hikari:
+      username: root
+      password: Qizhidao!123456
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://localhost:3306/gedit_store?useSSL=false
+    hikari:
+      username: root
+      password:
