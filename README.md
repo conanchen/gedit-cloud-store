@@ -14,7 +14,7 @@
   - $ gradle build --refresh-dependencies
   - $ in itellij idea,remove caches like this:
    ```
-   rm -rf /home/administrator/.gradle/caches/
+   rm -rf /home/administrator/.gradle/caches/modules-2/files-2.1/com.github.conanchen.gedit-api-grpc/
    ```
    and then open gradle navigate view,click refresh button in the top left of view
   
