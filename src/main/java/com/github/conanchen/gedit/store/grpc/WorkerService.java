@@ -12,22 +12,22 @@ import org.lognet.springboot.grpc.GRpcService;
 public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
 
     @Override
-    public void add(AddRequest request, StreamObserver<WorkshipResponse> responseObserver) {
+    public void add(AddWorkershipRequest request, StreamObserver<WorkshipResponse> responseObserver) {
         super.add(request, responseObserver);
     }
 
     @Override
-    public void listByStore(ListByStoreRequest request, StreamObserver<WorkshipResponse> responseObserver) {
+    public void listByStore(ListWorkshipByStoreRequest request, StreamObserver<WorkshipResponse> responseObserver) {
         super.listByStore(request, responseObserver);
     }
 
     @Override
-    public void listByWorker(ListByWorkerRequest request, StreamObserver<WorkshipResponse> responseObserver) {
+    public void listByWorker(ListWorkshipByWorkerRequest request, StreamObserver<WorkshipResponse> responseObserver) {
         super.listByWorker(request, responseObserver);
     }
 
     @Override
-    public void ban(BanRequest request, StreamObserver<WorkshipResponse> responseObserver) {
+    public void ban(BanWorkshipRequest request, StreamObserver<WorkshipResponse> responseObserver) {
         super.ban(request, responseObserver);
     }
 }
