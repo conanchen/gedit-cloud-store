@@ -51,3 +51,6 @@ spring:
       connection-timeout: 60000
       connection-test-query: select 1 from dual
       pool-name: gedit_store
+jjwt:
+  sigin:
+    key: shuai

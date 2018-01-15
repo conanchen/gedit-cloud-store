@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import static io.grpc.Status.ALREADY_EXISTS;
 import static io.grpc.Status.INVALID_ARGUMENT;
+import static io.grpc.Status.PERMISSION_DENIED;
 
 @Slf4j
 @GRpcService(applyGlobalInterceptors = false)
@@ -76,35 +77,38 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     public void update(UpdateStoreRequest request, StreamObserver<UpdateStoreResponse> responseObserver) {
         try {
             responseObserver.onNext(checkUpdate(request));
+            log.info("store update access success");
         }catch (UncheckedValidationException e){
             UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder().setCode(String.valueOf(INVALID_ARGUMENT.getCode().value())).setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
-        }finally {
-
-            responseObserver.onCompleted();
-            log.info("store update access success");
+        }catch (StatusRuntimeException e){
+            io.grpc.Status.Code code = e.getStatus().getCode();
+            UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
+                    .setStatus(Status.newBuilder()
+                            .setCode(String.valueOf(code.value()))
+                            .setDetails(e.getMessage())
+                            .build())
+                    .build();
+            responseObserver.onNext(response);
         }
+        responseObserver.onCompleted();
     }
 
     @Override
     public void get(GetStoreRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
-
-        responseObserver.onCompleted();
         try {
             String uuid = Hope.that(request.getUuid()).isNotNullOrEmpty().value();
             StoreProfile profile = (StoreProfile) profileRepository.findOne(uuid);
             responseObserver.onNext(modelToRep(profile,0));
-        }catch (UncheckedValidationException e){
-            responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
-        }finally {
             responseObserver.onCompleted();
             log.info("store update access success");
+        }catch (UncheckedValidationException e){
+            responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
         }
-        log.info("store get access success");
     }
 
     @Override
@@ -124,10 +128,9 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 responseObserver.onNext(modelToRep(profile, tempForm++));
                 try { Thread.sleep(500); } catch (InterruptedException e) {}
             }
+            responseObserver.onCompleted();
         }catch (UncheckedValidationException e){
             responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
-        }finally {
-            responseObserver.onCompleted();
         }
 
 
@@ -142,12 +145,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
             String name = Hope.that(request.getName()).isNotNullOrEmpty().value();
             StoreProfile profile = profileRepository.findByName(name);
             responseObserver.onNext(modelToRep(profile, 0));
+            responseObserver.onCompleted();
+            log.info("store get access success");
         }catch (UncheckedValidationException e){
             responseObserver.onError(INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
-        }finally {
-            responseObserver.onCompleted();
         }
-        log.info("store get access success");
     }
 
     @Override
@@ -215,7 +217,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         StoreProfile storeProfile = (StoreProfile) profileRepository.findOne(claims.getSubject());
         if (!storeProfile.getOwnerId().equals(req.getUuid())){
             log.info("user [{}] not owned the store [{}]",claims.getSubject(),req.getUuid());
-            throw new UncheckedValidationException("No authority");
+            throw new StatusRuntimeException(PERMISSION_DENIED.withDescription("permission_denied"));
         }
         //check store name reuse
         boolean exist = profileRepository.existsByNameAndOwnerIdNotIn(req.getName(),claims.getSubject());

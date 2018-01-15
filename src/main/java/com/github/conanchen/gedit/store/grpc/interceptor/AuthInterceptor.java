@@ -3,15 +3,13 @@ package com.github.conanchen.gedit.store.grpc.interceptor;
 import com.google.gson.Gson;
 import io.grpc.*;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.impl.crypto.MacProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
-
-import javax.crypto.SecretKey;
 
 /**
  * Interceptor that validates user's identity.
@@ -28,17 +26,22 @@ public class AuthInterceptor implements ServerInterceptor {
             Metadata.ASCII_STRING_MARSHALLER);
     private static final Metadata.Key<byte[]> EXTRA_AUTHORIZATION = Metadata.Key.of(
             "Extra-Authorization-bin", Metadata.BINARY_BYTE_MARSHALLER);
-    private static final String AUTHENTICATION_SCHEME = "Bearer";
+    public static final String AUTHENTICATION_SCHEME = "Bearer";
+    @Value("${jjwt.sigin.key:shuai}")
+    private String signinKey;
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
             ServerCall<ReqT, RespT> call,
             Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
-
-        // You need to implement validateIdentity
-        Claims identity = validateIdentity(headers);
-        // TODO expiration check
+        Claims identity = null;
+        try {
+            // You need to implement validateIdentity
+            identity = validateIdentity(headers);
+        }catch (JwtException e){
+            //ignore
+        }
         if (identity == null) { // this is optional, depending on your needs
             // Assume user not authenticated
             call.close(Status.UNAUTHENTICATED.withDescription("authorization failed"),
@@ -59,11 +62,8 @@ public class AuthInterceptor implements ServerInterceptor {
 
             log.info(String.format("authorization=%s, accessToken=%s", authorizationHeader, accessToken));
 
-            SecretKey secretKey = MacProvider.generateKey();
-            Jwt<Header, Claims> claimsJwt = Jwts.parser().parseClaimsJwt(accessToken);
-            log.info(String.format("secretKey.algorithm=%s,secretKey.format=%s,secretKey.encoded=%s,jwt1.id=%s",
-                    secretKey.getAlgorithm(),
-                    secretKey.getFormat(), new String(secretKey.getEncoded()), claimsJwt.getBody().getId()));
+            Jws<Claims> claimsJwt = Jwts.parser().setSigningKey(signinKey).parseClaimsJws(accessToken);
+            log.info(String.format("signinKey=%s,jwt1.id=%s",signinKey, claimsJwt.getBody().getId()));
             return claimsJwt.getBody();
 
         }
