@@ -67,7 +67,7 @@ spring:
 spring:
   profiles: test
   datasource:
-    url: jdbc:mysql://localhost:3306/gedit_store?useSSL=false
+    url: jdbc:mysql://dev.jifenpz.com:3306/gedit_store?useSSL=false
     hikari:
       username: root
       password:
