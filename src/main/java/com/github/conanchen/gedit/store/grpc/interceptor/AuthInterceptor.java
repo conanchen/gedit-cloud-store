@@ -41,6 +41,7 @@ public class AuthInterceptor implements ServerInterceptor {
             identity = validateIdentity(headers);
         }catch (JwtException e){
             //ignore
+            log.error("parse token occur an exception:",e);
         }
         if (identity == null) { // this is optional, depending on your needs
             // Assume user not authenticated

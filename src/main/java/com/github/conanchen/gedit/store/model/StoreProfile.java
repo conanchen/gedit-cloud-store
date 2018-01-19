@@ -31,10 +31,10 @@ public class StoreProfile {
     @Column(columnDefinition = "varchar(255)")
     private String logo;
 
-    @Column(columnDefinition = "decimal(6,6)")
+    @Column(columnDefinition = "decimal(10,6)")
     private Double lat;
 
-    @Column(columnDefinition = "decimal(6,6)")
+    @Column(columnDefinition = "decimal(10,6)")
     private Double lon;
 
     @Column(columnDefinition = "varchar(255)")
