@@ -1,24 +1,28 @@
 package com.github.conanchen.gedit.client;
 
+import com.github.conanchen.gedit.common.grpc.Location;
 import com.github.conanchen.gedit.hello.grpc.HelloGrpc;
-import com.github.conanchen.gedit.store.profile.grpc.ListStoreRequest;
-import com.github.conanchen.gedit.store.profile.grpc.StoreProfileApiGrpc;
-import com.github.conanchen.gedit.store.profile.grpc.StoreProfileResponse;
+import com.github.conanchen.gedit.store.profile.grpc.*;
 import com.github.conanchen.gedit.user.auth.grpc.UserAuthApiGrpc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
+import io.grpc.stub.MetadataUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 public class TestClient {
-    private static final Gson gson = new GsonBuilder().setDateFormat(DateFormat.MILLISECOND_FIELD).create();
+    private static final Logger log = LoggerFactory.getLogger(TestClient.class);
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private StoreProfileApiGrpc.StoreProfileApiBlockingStub blockingStub;
     private ManagedChannel channel;
     private static final String local = "127.0.0.1";
@@ -30,10 +34,18 @@ public class TestClient {
                 .build();
 
         blockingStub = StoreProfileApiGrpc.newBlockingStub(channel);
+        //access token
+        String accessToken = "BearereyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAKtWykwsUbIyNDU0MzY1MjYw0lEqLk1SslIyMTCysDCwMDYzNEixNEhLNjAEsRKNU1MsTQ0MDIyVdJSySjLxK0wDKjQBKkytKEC2ohYAkjAow3UAAAA.OQ3rlz5NTv4aV5DvsWbbVKE6Ow7BFy4_P51W7ci6X6a68WSu-qgJ2sAlbw9qWNunMgPZiW1dYGv_HdnlqzYOdA";
+        // create a custom header
+        Metadata header=new Metadata();
+        Metadata.Key<String> key =
+                Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
+        header.put(key, accessToken);
+        blockingStub = MetadataUtils.attachHeaders(blockingStub, header);
     }
     @After
     public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(2, TimeUnit.SECONDS);
+        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
     public  void list(int from){
@@ -52,5 +64,16 @@ public class TestClient {
     @Test
     public void list(){
         list(0,1);
+    }
+    @Test
+    public void create(){
+        CreateStoreResponse response =  blockingStub.create(CreateStoreRequest.newBuilder()
+                .setName("haige")
+                .setDetailAddress("chengdu")
+                .setDistrictUuid("110000")
+                .setDetailAddress("wuhou")
+                .setLocation(Location.newBuilder().setLon(12.121212D).setLat(12.121213D).build())
+                .build());
+        log.info(gson.toJson(response));
     }
 }

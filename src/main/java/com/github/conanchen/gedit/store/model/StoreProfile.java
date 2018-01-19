@@ -40,6 +40,7 @@ public class StoreProfile {
     @Column(columnDefinition = "varchar(255)")
     private String descr;
 
+    //地区id
     @Column(columnDefinition = "varchar(6)")
     private String districtUuid;
 

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import static io.grpc.Status.Code.*;
 
 @Slf4j
-@GRpcService(applyGlobalInterceptors = false)
+@GRpcService
 public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase {
 
     private static final Type listStrType = new TypeToken<ArrayList<String>>() {}.getType();
@@ -204,7 +204,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
         //common check
         createOrUpdateCommonCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
-
+        Date now = new Date();
         StoreProfile storeProfile = StoreProfile.builder()
                 .ownerId(claims.getSubject())
                 .active(true)
@@ -213,8 +213,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .name(req.getName())
                 .lat(req.getLocation().getLat())
                 .lon(req.getLocation().getLon())
-                .createdDate(new Date())
-                .updatedDate(new Date())
+                .createdDate(now)
+                .updatedDate(now)
                 .build();
         profileRepository.save(storeProfile);
 
