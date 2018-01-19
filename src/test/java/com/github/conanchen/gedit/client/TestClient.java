@@ -1,9 +1,7 @@
 package com.github.conanchen.gedit.client;
 
 import com.github.conanchen.gedit.common.grpc.Location;
-import com.github.conanchen.gedit.hello.grpc.HelloGrpc;
 import com.github.conanchen.gedit.store.profile.grpc.*;
-import com.github.conanchen.gedit.user.auth.grpc.UserAuthApiGrpc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.grpc.ManagedChannel;
@@ -16,7 +14,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -29,13 +26,13 @@ public class TestClient {
     private static final String remote = "dev.jifenpz.com";
     @Before
     public void init(){
-        channel = ManagedChannelBuilder.forAddress(remote,8980)
+        channel = ManagedChannelBuilder.forAddress(local,8980)
                 .usePlaintext(true)
                 .build();
 
         blockingStub = StoreProfileApiGrpc.newBlockingStub(channel);
         //access token
-        String accessToken = "BearereyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAKtWykwsUbIyNDU0MzY1MjYw0lEqLk1SslIyMTCysDCwMDYzNEixNEhLNjAEsRKNU1MsTQ0MDIyVdJSySjLxK0wDKjQBKkytKEC2ohYAkjAow3UAAAA.OQ3rlz5NTv4aV5DvsWbbVKE6Ow7BFy4_P51W7ci6X6a68WSu-qgJ2sAlbw9qWNunMgPZiW1dYGv_HdnlqzYOdA";
+        String accessToken = "BearereyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAF3NwQqAIBCE4XfZs4fRdUV9GzUDOwUZBNG7l9SpOf2HD-akljpFLdqxWCtG0bZnimRhvIdnpzEFzAV6VOI6BQHApGjp7QcLmw8Wmytj7IH1WN-LIMEIXzeBEd8hdQAAAA.WpD5DxFWFEQOj8CdPELyq8xLYu5T8xSkK-PAPk_QzVjUIqM4XZJr4e7XD6aw5f0dYqU13k5hIZ1K0wfOncZI6A";
         // create a custom header
         Metadata header=new Metadata();
         Metadata.Key<String> key =
@@ -63,11 +60,30 @@ public class TestClient {
     //测试时删除给profileService @grpcService设置applyGlobalInterceptors false并注释掉下面list方法中的用户访问日志
     @Test
     public void list(){
-        list(0,1);
+        list(0,10);
     }
     @Test
     public void create(){
         CreateStoreResponse response =  blockingStub.create(CreateStoreRequest.newBuilder()
+                .setName("haige")
+                .setDetailAddress("chengdu")
+                .setDistrictUuid("110000")
+                .setDetailAddress("wuhou")
+                .setLocation(Location.newBuilder().setLon(12.121212D).setLat(12.121213D).build())
+                .build());
+        log.info(gson.toJson(response));
+    }
+    @Test
+    public void get(){
+        StoreProfileResponse response = blockingStub.get(GetStoreRequest.newBuilder().setUuid("40288084610dd68901610dd9ab880001").build());
+        log.info(gson.toJson(response));
+    }
+    @Test
+    public void update(){
+        UpdateStoreResponse response = blockingStub.update(UpdateStoreRequest.newBuilder()
+                .setActive(true)
+                .setUuid("40288084610dd68901610dd9ab880001")
+                .setDesc("好吃一匹") //update
                 .setName("haige")
                 .setDetailAddress("chengdu")
                 .setDistrictUuid("110000")

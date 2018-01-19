@@ -203,11 +203,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
         //common check
-        createOrUpdateCommonCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
+        createCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
         Date now = new Date();
         StoreProfile storeProfile = StoreProfile.builder()
                 .ownerId(claims.getSubject())
-                .active(true)
+                .active(false) //默认 false
                 .detailAddress(req.getDetailAddress())
                 .districtUuid(req.getDistrictUuid())
                 .name(req.getName())
@@ -228,22 +228,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     private UpdateStoreResponse checkUpdate(UpdateStoreRequest req){
         //uuid
-        Hope.that(req.getUuid()).named("uuid").isNotNullOrEmpty();
-        //logo
-        Hope.that(req.getLogo()).named("logo")
-                .isTrue(n -> (n == null || n.length() == 0 || URL_REGEX.matcher(n).matches()),"logo是一个图片地址")
-                .orElse(EMPTY_STRING)
-                .isTrue(n -> n.length() <= 255,"logo不能超过%s个字,如有必要请联系工程师",255);
-        //common check
-        createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictUuid(),req.getLocation());
-        /*if (profileRepository.findByName(req.getName()) != null) {
-            throw new StatusRuntimeException(ALREADY_EXISTS.withDescription("商户名已存在"));
-        }*/
-        //check th current user is the store owner
+        String uuid = Hope.that(req.getUuid()).named("uuid").isNotNullOrEmpty().value();
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
-        StoreProfile storeProfile = (StoreProfile) profileRepository.findOne(claims.getSubject());
-        if (!storeProfile.getOwnerId().equals(req.getUuid())){
+        StoreProfile storeProfile = (StoreProfile) profileRepository.findOne(uuid);
+        if (!storeProfile.getOwnerId().equals(claims.getSubject())){
             log.info("user [{}] not owned the store [{}]",claims.getSubject(),req.getUuid());
             UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder()
@@ -252,20 +241,62 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                     .build();
             return response;
         }
-        //check store name reuse
-       /* boolean exist = profileRepository.existsByNameAndOwnerIdNotIn(req.getName(),claims.getSubject());
-        if (exist){
-            throw new StatusRuntimeException(ALREADY_EXISTS.withDescription("商户名已存在"));
-        }*/
         StoreProfile profile = (StoreProfile) profileRepository.findOne(req.getUuid());
-        BeanUtils.copyProperties(req,profile);
-        profile.setDescr(req.getDesc());
-        profile.setLon(req.getLocation().getLon());
-        profile.setLat(req.getLocation().getLat());
-        profile.setImages(req.getImages().toString());
+        switch (req.getPropertyCase()){
+            case DESC:
+                String desc = Hope.that(req.getDesc())
+                        .isTrue(n -> n.length() <= 255,"描述小于%s字",255)
+                        .value();
+                profile.setDescr(desc);
+                break;
+            case LOGO:
+                String logo = Hope.that(req.getLogo())
+                        .isTrue(n -> n.length() <= 255,"logo小于%s字",255)
+                        .value();
+                profile.setLogo(logo);
+                break;
+            case TYPE:
+                String type = Hope.that(req.getType())
+                        .isTrue(n -> n.length() <= 16,"商户类型小于%s字",16)
+                        .value();
+                profile.setLogo(type);
+                break;
+            case ACTIVE:
+                profile.setActive(req.getActive());
+                break;
+            case NAME:
+                String name = Hope.that(req.getName())
+                        .isTrue(n -> n.length() <= 64,"商户名称小于%s字",64)
+                        .value();
+                profile.setName(name);
+                break;
+            case IMAGES:
+                String iamges = Hope.that(req.getImages().toString())
+                        .isTrue(n -> n.length() <= 4096,"图片介绍小于%s字",4096)
+                        .value();
+                profile.setImages(iamges);
+                break;
+            case LOCATION:
+                checkLocation(req.getLocation());
+                profile.setLat(req.getLocation().getLat());
+                profile.setLon(req.getLocation().getLon());
+                break;
+            case POINTSRATE:
+                Integer pointRate  = Hope.that(req.getPointsRate()).isTrue(n -> n <= 100,"积分比例小%%s",100).value();
+                profile.setPointsRate(Double.valueOf(pointRate));
+                break;
+            case DISTRICTUUID:
+                profile.setDistrictUuid(req.getDistrictUuid());
+                break;
+            case DETAILADDRESS:
+                String detailAddress = Hope.that(req.getDetailAddress()).isTrue(n -> n.length() <= 512,"详细地址不的超过%s字",512).value();
+                profile.setDetailAddress(detailAddress);
+                break;
+            case PROPERTY_NOT_SET:
+                throw new UncheckedValidationException("property not set");
+        }
         profile.setUpdatedDate(new Date());
         profileRepository.save(profile);
-
         return UpdateStoreResponse.newBuilder()
                 .setUuid(profile.getUuid())
                 .setLastUpdated(profile.getUpdatedDate().getTime())
@@ -278,7 +309,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
 
-    private void createOrUpdateCommonCheck(String name,String detailAddress, String districtId,Location location){
+    private void createCheck(String name,String detailAddress, String districtId,Location location){
 
         //name 长度限制
         Hope.that(name).named("name").isNotNullOrEmpty()
