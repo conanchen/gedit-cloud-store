@@ -60,7 +60,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
         try {
             responseObserver.onNext(checkCreate(request));
-        }catch (Exception e){
+        }catch (UncheckedValidationException e){
             CreateStoreResponse response = CreateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder()
                             .setCode(String.valueOf(INVALID_ARGUMENT.value()))
@@ -122,11 +122,13 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     @Override
     public void list(ListStoreRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
         try {
-            Integer from = Hope.that(request.getFrom()).isNotNull().isTrue(n -> n >= 0,"from must be greater than or equals：%s",0).value();
-            Integer size = Hope.that(request.getSize()).isNotNull().isTrue(n -> n > 0,"size must be greater than %s",0).value();
+            Integer from = Hope.that(request.getFrom()).named("from").isNotNull()
+                    .isTrue(n -> n >= 0,"from must be greater than or equals：%s",0).value();
+            Integer size = Hope.that(request.getSize()).named("size")
+                    .isNotNull().isTrue(n -> n > 0,"size must be greater than %s",0).value();
             int tempForm = from == 0 ? 0 : from + 1;
             Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));
-            List<StoreProfile> list = null;
+            List<StoreProfile> list;
             if (!StringUtils.isEmpty(request.getType())) {
                 list = profileRepository.findByType(request.getType(),pageable);
             }else{

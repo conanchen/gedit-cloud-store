@@ -1,12 +1,17 @@
 package com.github.conanchen.gedit.client;
 
+import com.github.conanchen.gedit.hello.grpc.HelloGrpc;
 import com.github.conanchen.gedit.store.profile.grpc.ListStoreRequest;
 import com.github.conanchen.gedit.store.profile.grpc.StoreProfileApiGrpc;
 import com.github.conanchen.gedit.store.profile.grpc.StoreProfileResponse;
+import com.github.conanchen.gedit.user.auth.grpc.UserAuthApiGrpc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.text.DateFormat;
 import java.util.Iterator;
@@ -15,17 +20,20 @@ import java.util.concurrent.TimeUnit;
 public class TestClient {
     private static final Gson gson = new GsonBuilder().setDateFormat(DateFormat.MILLISECOND_FIELD).create();
     private StoreProfileApiGrpc.StoreProfileApiBlockingStub blockingStub;
-    private final ManagedChannel channel;
-    public TestClient(String host,int port){
-        channel = ManagedChannelBuilder.forAddress(host,port)
+    private ManagedChannel channel;
+    private static final String local = "127.0.0.1";
+    private static final String remote = "dev.jifenpz.com";
+    @Before
+    public void init(){
+        channel = ManagedChannelBuilder.forAddress(remote,8980)
                 .usePlaintext(true)
                 .build();
 
         blockingStub = StoreProfileApiGrpc.newBlockingStub(channel);
     }
-
+    @After
     public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        channel.shutdown().awaitTermination(2, TimeUnit.SECONDS);
     }
 
     public  void list(int from){
@@ -41,15 +49,8 @@ public class TestClient {
     }
 
     //测试时删除给profileService @grpcService设置applyGlobalInterceptors false并注释掉下面list方法中的用户访问日志
-    public static void main(String[] args) throws InterruptedException {
-        TestClient client = new TestClient("127.0.0.1",8980);
-       /* for(int i=0;i<5;i++){
-            System.out.println(String.format("第%s调用",i + 1));
-            client.list(i * 5);
-        }*/
-        //parameter check
-        client.list(1,-1);
-        client.shutdown();
-
+    @Test
+    public void list(){
+        list(0,1);
     }
 }
