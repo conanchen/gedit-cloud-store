@@ -231,7 +231,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         Hope.that(req.getUuid()).named("uuid").isNotNullOrEmpty();
         //logo
         Hope.that(req.getLogo()).named("logo")
-                .isTrue(n -> (n == null || URL_REGEX.matcher(n).matches()))
+                .isTrue(n -> (n == null || n.length() == 0 || URL_REGEX.matcher(n).matches()),"logo是一个图片地址")
                 .orElse(EMPTY_STRING)
                 .isTrue(n -> n.length() <= 255,"logo不能超过%s个字,如有必要请联系工程师",255);
         //common check
@@ -281,7 +281,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     private void createOrUpdateCommonCheck(String name,String detailAddress, String districtId,Location location){
 
         //name 长度限制
-        Hope.that(name).isNotNullOrEmpty().named("name")
+        Hope.that(name).named("name").isNotNullOrEmpty()
                 .isTrue(n -> n.length() <= 64,"商户名称不能超过%s个字",64);
         //detailAddresss
         Hope.that(detailAddress).orElse(EMPTY_STRING).isNotNullOrEmpty()
