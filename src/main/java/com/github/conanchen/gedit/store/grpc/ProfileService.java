@@ -154,9 +154,19 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(request)));
         try {
+            Integer from = Hope.that(request.getFrom()).named("from").isNotNull()
+                    .isTrue(n -> n >= 0,"from must be greater than or equals：%s",0).value();
+            Integer size = Hope.that(request.getSize()).named("size")
+                    .isNotNull().isTrue(n -> n > 0,"size must be greater than %s",0).value();
+            int tempForm = from == 0 ? 0 : from + 1;
             String name = Hope.that(request.getName()).isNotNullOrEmpty().value();
-            StoreProfile profile = profileRepository.findByName(name);
-            responseObserver.onNext(modelToRep(profile, 0));
+            Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));
+            List<StoreProfile> list = profileRepository.findByName(name,pageable);
+            for (StoreProfile profile : list){
+                responseObserver.onNext(modelToRep(profile, tempForm++));
+                try { Thread.sleep(500); } catch (InterruptedException e) {}
+            }
+           // responseObserver.onNext(modelToRep(profile, 0));
             log.info("store get access success");
         }catch (UncheckedValidationException e){
             StoreProfileResponse response = StoreProfileResponse.newBuilder()

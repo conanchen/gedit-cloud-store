@@ -92,4 +92,13 @@ public class TestClient {
                 .build());
         log.info(gson.toJson(response));
     }
+    @Test
+    public void findByName(){
+        Iterator<StoreProfileResponse> responses = blockingStub.findByName(FindByNameRequest.newBuilder()
+                .setName("haige")
+                .setFrom(0)
+                .setSize(5)
+                .build());
+        responses.forEachRemaining(n ->  log.info("row " + n.getStoreProfile().getFrom()+ " :" + gson.toJson(n)));
+    }
 }
