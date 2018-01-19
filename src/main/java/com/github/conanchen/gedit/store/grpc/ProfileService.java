@@ -120,7 +120,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
     @Override
-    public void list(ListRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
+    public void list(ListStoreRequest request, StreamObserver<StoreProfileResponse> responseObserver) {
         try {
             Integer from = Hope.that(request.getFrom()).isNotNull().isTrue(n -> n >= 0,"from must be greater than or equals：%s",0).value();
             Integer size = Hope.that(request.getSize()).isNotNull().isTrue(n -> n > 0,"size must be greater than %s",0).value();
