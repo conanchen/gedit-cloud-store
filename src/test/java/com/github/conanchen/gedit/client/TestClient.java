@@ -1,6 +1,6 @@
 package com.github.conanchen.gedit.client;
 
-import com.github.conanchen.gedit.store.profile.grpc.ListRequest;
+import com.github.conanchen.gedit.store.profile.grpc.ListStoreRequest;
 import com.github.conanchen.gedit.store.profile.grpc.StoreProfileApiGrpc;
 import com.github.conanchen.gedit.store.profile.grpc.StoreProfileResponse;
 import com.google.gson.Gson;
@@ -29,13 +29,13 @@ public class TestClient {
     }
 
     public  void list(int from){
-        ListRequest request = ListRequest.newBuilder().setFrom(from).setType("0").setSize(5).build();
+        ListStoreRequest request = ListStoreRequest.newBuilder().setFrom(from).setType("0").setSize(5).build();
         Iterator<StoreProfileResponse> responses = blockingStub.list(request);
         responses.forEachRemaining(n -> System.out.println("row " + n.getStoreProfile().getFrom()+ " :" + gson.toJson(n)));
     }
 
     public  void list(int from,int size){
-        ListRequest request = ListRequest.newBuilder().setFrom(from).setType("0").setSize(size).build();
+        ListStoreRequest request = ListStoreRequest.newBuilder().setFrom(from).setType("0").setSize(size).build();
         Iterator<StoreProfileResponse> responses = blockingStub.list(request);
         responses.forEachRemaining(n -> System.out.println("row " + n.getStoreProfile().getFrom()+ " :" + gson.toJson(n)));
     }
