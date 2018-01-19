@@ -228,9 +228,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     private UpdateStoreResponse checkUpdate(UpdateStoreRequest req){
         //uuid
-        Hope.that(req.getUuid()).isNotNullOrEmpty();
+        Hope.that(req.getUuid()).named("uuid").isNotNullOrEmpty();
         //logo
-        Hope.that(req.getLogo()).isTrue(n -> n == null || URL_REGEX.matcher(n).matches()).orElse(EMPTY_STRING)
+        Hope.that(req.getLogo()).named("logo")
+                .isTrue(n -> (n == null || URL_REGEX.matcher(n).matches()))
+                .orElse(EMPTY_STRING)
                 .isTrue(n -> n.length() <= 255,"logo不能超过%s个字,如有必要请联系工程师",255);
         //common check
         createOrUpdateCommonCheck(req.getName(),req.getDetailAddress(),req.getDistrictUuid(),req.getLocation());
