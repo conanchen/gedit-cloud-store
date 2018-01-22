@@ -21,7 +21,7 @@ management:
   security:
     enabled: false
 grpc:
-  port: 8980
+  port: 9981
 server:
   port: 8088
 spring:
