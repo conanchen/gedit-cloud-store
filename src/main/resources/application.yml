@@ -24,6 +24,8 @@ grpc:
   port: 9981
 server:
   port: 8088
+search:
+  uri: dev.jifenpz.com #defalut
 spring:
   profiles:
     active: dev
@@ -63,6 +65,8 @@ spring:
     hikari:
       username: root
       password: Qizhidao!123456
+search:
+  uri: 192.168.1.200
 ---
 spring:
   profiles: test
@@ -71,3 +75,5 @@ spring:
     hikari:
       username: root
       password:
+search:
+  uri: dev.jifenpz.com

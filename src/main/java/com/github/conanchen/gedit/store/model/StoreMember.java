@@ -23,14 +23,19 @@ public class StoreMember {
 
 
     @Column(columnDefinition = "char(32)")
-    private String memberId;
+    private String memberUuid;
 
     @Column(columnDefinition = "char(32)")
-    private String storeId;
+    private String storeUuid;
 
     @Column(columnDefinition = "varchar(16)")
     private String memberType;
 
+    @Column(columnDefinition = "datetime")
+    private Date startTime;
+
+    @Column(columnDefinition = "datetime")
+    private Date endTime;
 
     @Column(columnDefinition = "tinyint(1)")
     private Boolean active;

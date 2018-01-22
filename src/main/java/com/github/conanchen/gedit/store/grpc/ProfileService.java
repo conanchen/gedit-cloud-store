@@ -2,6 +2,7 @@ package com.github.conanchen.gedit.store.grpc;
 
 import com.github.conanchen.gedit.common.grpc.Location;
 import com.github.conanchen.gedit.common.grpc.Status;
+import com.github.conanchen.gedit.store.grpc.client.SearchClient;
 import com.github.conanchen.gedit.store.grpc.interceptor.AuthInterceptor;
 import com.github.conanchen.gedit.store.model.StoreProfile;
 import com.github.conanchen.gedit.store.profile.grpc.*;
@@ -18,18 +19,17 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static io.grpc.Status.Code.*;
 
@@ -44,6 +44,9 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     @Resource
     private StoreProfileRepository profileRepository;
+
+    @Autowired
+    private SearchClient searchClient;
 
     @Override
     public void create(CreateStoreRequest request, StreamObserver<CreateStoreResponse> responseObserver) {
@@ -187,8 +190,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .createdDate(now)
                 .updatedDate(now)
                 .build();
-        profileRepository.save(storeProfile);
-
+        StoreProfile profile = (StoreProfile)profileRepository.save(storeProfile);
+        searchClient.index(profile);
         return CreateStoreResponse.newBuilder()
                 .setName(storeProfile.getName())
                 .setUuid(storeProfile.getUuid())
@@ -272,6 +275,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         }
         profile.setUpdatedDate(new Date());
         profileRepository.save(profile);
+        searchClient.index(profile);
         return UpdateStoreResponse.newBuilder()
                 .setUuid(profile.getUuid())
                 .setLastUpdated(profile.getUpdatedDate().getTime())
