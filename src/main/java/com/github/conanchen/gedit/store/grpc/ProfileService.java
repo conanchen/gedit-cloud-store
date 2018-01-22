@@ -180,7 +180,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         createCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
         Date now = new Date();
         StoreProfile storeProfile = StoreProfile.builder()
-                .ownerId(claims.getSubject())
+                .ownerUuid(claims.getSubject())
                 .active(false) //默认 false
                 .detailAddress(req.getDetailAddress())
                 .districtUuid(req.getDistrictUuid())
@@ -195,7 +195,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         return CreateStoreResponse.newBuilder()
                 .setName(storeProfile.getName())
                 .setUuid(storeProfile.getUuid())
-                .setOwnerUuid(storeProfile.getOwnerId())
+                .setOwnerUuid(storeProfile.getOwnerUuid())
                 .setStatus(Status.newBuilder().setCode(String.valueOf(OK.value())).setDetails("新增成功").build())
                 .build();
     }
@@ -206,7 +206,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
         StoreProfile storeProfile = (StoreProfile) profileRepository.findOne(uuid);
-        if (!storeProfile.getOwnerId().equals(claims.getSubject())){
+        if (!storeProfile.getOwnerUuid().equals(claims.getSubject())){
             log.info("user [{}] not owned the store [{}]",claims.getSubject(),req.getUuid());
             UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder()

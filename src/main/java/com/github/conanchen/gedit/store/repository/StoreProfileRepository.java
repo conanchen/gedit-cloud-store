@@ -12,7 +12,7 @@ public interface StoreProfileRepository<T,String extends Serializable> extends J
 
     List<StoreProfile> findByType(String type, Pageable request);
 
-    boolean existsByNameAndOwnerIdNotIn(String name,String ownerId);
+    boolean existsByNameAndOwnerUuidNotIn(String name,String ownerId);
 
     List<StoreProfile> findByOwnerUuid(String ownerUuid);
 }

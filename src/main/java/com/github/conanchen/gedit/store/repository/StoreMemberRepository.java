@@ -13,6 +13,4 @@ public interface StoreMemberRepository<T,String extends Serializable> extends Jp
     List<StoreMember> findByStoreUuid(String storeUuid, Pageable request);
 
     List<StoreMember> findByMemberUuid(String memberUuid, Pageable request);
-
-    List<StoreMember> findAllByStoreUuidAndCreateDate(List<String> storeUuid);
 }

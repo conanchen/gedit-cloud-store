@@ -26,7 +26,7 @@ public class StoreProfile {
     private String name;
 
     @Column(columnDefinition = "char(32)")
-    private String ownerId;
+    private String ownerUuid;
 
     @Column(columnDefinition = "varchar(255)")
     private String logo;
