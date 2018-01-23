@@ -59,7 +59,7 @@ public class AuthInterceptor implements ServerInterceptor {
         if (authorizationHeader != null) {
             // Extract the token from the Authorization header
             String accessToken = authorizationHeader
-                    .substring(AUTHENTICATION_SCHEME.length()).trim();
+                    .substring(AUTHENTICATION_SCHEME.length() + 1).trim();
 
             log.info(String.format("authorization=%s, accessToken=%s", authorizationHeader, accessToken));
 
