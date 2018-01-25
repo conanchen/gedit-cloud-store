@@ -26,10 +26,10 @@ public class StoreWorker {
 
 
     @Column(columnDefinition = "char(32)")
-    private String workerId;
+    private String workerUuid;
 
     @Column(columnDefinition = "char(32)")
-    private String storeId;
+    private String storeUuid;
 
     @Column(columnDefinition = "tinyint(1)")
     private Boolean active;
