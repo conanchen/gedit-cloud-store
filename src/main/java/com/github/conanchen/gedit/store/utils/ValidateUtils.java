@@ -1,4 +1,4 @@
-package com.github.conanchen.gedit.store.util;
+package com.github.conanchen.gedit.store.utils;
 import com.github.conanchen.gedit.store.exception.RRException;
 import io.grpc.Status;
 

@@ -1,4 +1,4 @@
-package com.github.conanchen.gedit.store.util.database;
+package com.github.conanchen.gedit.store.utils.database;
 
 import org.hibernate.type.descriptor.java.UUIDTypeDescriptor;
 

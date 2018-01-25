@@ -1,4 +1,4 @@
-package com.github.conanchen.gedit.store.util;
+package com.github.conanchen.gedit.store.utils;
 
 
 import java.lang.reflect.Field;

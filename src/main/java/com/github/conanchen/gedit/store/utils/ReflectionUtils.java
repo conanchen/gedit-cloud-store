@@ -3,7 +3,7 @@
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  *******************************************************************************/
-package com.github.conanchen.gedit.store.util;
+package com.github.conanchen.gedit.store.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

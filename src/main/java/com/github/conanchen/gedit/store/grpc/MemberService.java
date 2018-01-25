@@ -9,7 +9,7 @@ import com.github.conanchen.gedit.store.model.StoreProfile;
 import com.github.conanchen.gedit.store.repository.StoreMemberRepository;
 import com.github.conanchen.gedit.store.repository.StoreProfileRepository;
 import com.github.conanchen.gedit.store.repository.page.OffsetBasedPageRequest;
-import com.github.conanchen.gedit.store.util.EntityUtils;
+import com.github.conanchen.gedit.store.utils.EntityUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.martiansoftware.validation.Hope;
