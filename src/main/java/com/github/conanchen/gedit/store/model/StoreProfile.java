@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Date;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +28,9 @@ public class StoreProfile {
 
     @Column(columnDefinition = "char(32)")
     private String ownerUuid;
+
+    @Column(columnDefinition = "varchar(32)")
+    private String introducerUuid;
 
     @Column(columnDefinition = "varchar(255)")
     private String logo;
@@ -64,6 +68,36 @@ public class StoreProfile {
 
     @Column(columnDefinition = "varchar(64)")
     private String keyword;
+
+    @Column(columnDefinition = "varchar(16)")
+    private String amapAdCode;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapAoiName;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapBuildingId;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapStreet;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapStreetNum;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapDistrict;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapCityCode;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapCity;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapProvince;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String amapCountry;
 
     @Column(columnDefinition = "datetime")
     private Date createdDate;

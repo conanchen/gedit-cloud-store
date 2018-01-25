@@ -152,7 +152,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         com.github.conanchen.gedit.store.profile.grpc.StoreProfile grpcStoreProfile = com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder().build();
         //copy properties
         BeanUtils.copyProperties(profile,grpcStoreProfile);
-        com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile= com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
+        com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile = com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
                 .setDesc(Hope.that(profile.getDescr()).orElse("").value())
                 .addAllImages((Iterable<String>) Hope
                         .that(gson.fromJson(profile.getImages(),listStrType))
@@ -162,6 +162,25 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                         .setLat(Hope.that(profile.getLat()).orElse(0.0D).value())
                         .setLon(Hope.that(profile.getLon()).orElse(0.0D).value())
                         .build())
+                .setUuid(profile.getUuid())
+                .setActive(profile.getActive())
+                .setLogo(profile.getLogo() == null ? EMPTY_STRING : profile.getLogo())
+                .setType(profile.getType() == null ? EMPTY_STRING : profile.getType())
+                .setDistrictUuid(profile.getDistrictUuid() == null ? EMPTY_STRING : profile.getDistrictUuid())
+                .setDetailAddress(profile.getDetailAddress() == null ? EMPTY_STRING : profile.getDetailAddress())
+                .setIntroducerUuid(profile.getIntroducerUuid() == null ? EMPTY_STRING : profile.getIntroducerUuid())
+                .setPointsRate(profile.getPointsRate() == null ? 0.00D : profile.getPointsRate())
+                //配合搜索的字段
+                .setAmapAdCode(profile.getAmapAdCode())
+                .setAmapAoiName(profile.getAmapAoiName())
+                .setAmapBuildingId(profile.getAmapBuildingId())
+                .setAmapStreet(profile.getAmapStreet())
+                .setAmapStreetNum(profile.getAmapStreetNum())
+                .setAmapDistrict(profile.getAmapDistrict())
+                .setAmapCity(profile.getAmapCity())
+                .setAmapCityCode(profile.getAmapCityCode())
+                .setAmapProvince(profile.getAmapProvince())
+                .setAmapCountry(profile.getAmapCountry())
                 .setFrom(from)
                 .build();
         StoreProfileResponse response = StoreProfileResponse.newBuilder()
@@ -180,13 +199,24 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         createCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
         Date now = new Date();
         StoreProfile storeProfile = StoreProfile.builder()
+                .districtUuid(req.getDistrictUuid())
+                .introducerUuid(req.getIntroducerUuid())
                 .ownerUuid(claims.getSubject())
                 .active(false) //默认 false
                 .detailAddress(req.getDetailAddress())
                 .districtUuid(req.getDistrictUuid())
-                .name(req.getName())
                 .lat(req.getLocation().getLat())
                 .lon(req.getLocation().getLon())
+                .amapAdCode(req.getAmapAdCode())
+                .amapAoiName(req.getAmapAoiName())
+                .amapBuildingId(req.getAmapBuildingId())
+                .amapStreet(req.getAmapStreet())
+                .amapStreetNum(req.getAmapStreetNum())
+                .amapDistrict(req.getAmapDistrict())
+                .amapCity(req.getAmapCity())
+                .amapCityCode(req.getAmapCityCode())
+                .amapProvince(req.getAmapProvince())
+                .amapCountry(req.getAmapCountry())
                 .createdDate(now)
                 .updatedDate(now)
                 .build();
@@ -256,10 +286,10 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 profile.setLon(req.getLocation().getLon());
                 break;
             case POINTSRATE:
-                Integer pointRate  = Hope.that(req.getPointsRate())
-                        .isTrue(n -> n <= 100,"积分比例小%%s",100)
+                Double pointRate  = Hope.that(req.getPointsRate())
+                        .isTrue(n -> n <= 100.00D,"积分比例小%%s",100.00D)
                         .value();
-                profile.setPointsRate(Double.valueOf(pointRate));
+                profile.setPointsRate(pointRate);
                 break;
             case DISTRICTUUID:
                 profile.setDistrictUuid(req.getDistrictUuid());

@@ -30,7 +30,7 @@ public class SearchClient {
     public void index(StoreProfile storeProfile){
         searchApiBlockingStub.index(IndexStoreRequest.newBuilder()
                 .setDesc(storeProfile.getDescr())
-                .setBonusRate(storeProfile.getPointsRate() == null ? 0 : storeProfile.getPointsRate().intValue())
+                .setPointsRate(storeProfile.getPointsRate() == null ? 0.0D : storeProfile.getPointsRate())
                 .setLocation(Location.newBuilder()
                         .setLat(storeProfile.getLat() ==  null ? 0.0D : storeProfile.getLat())
                         .setLon(storeProfile.getLon() ==  null ? 0.0D : storeProfile.getLon())
