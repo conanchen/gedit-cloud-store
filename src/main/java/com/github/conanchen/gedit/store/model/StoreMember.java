@@ -17,7 +17,10 @@ import java.util.Date;
 public class StoreMember {
     @Id
     @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @GenericGenerator(
+            name = "uuid",
+            strategy = "com.github.conanchen.gedit.store.utils.database.CustomUUIDGenerator"
+    )
     @Column(columnDefinition = "char(32)")
     private String uuid;
 
