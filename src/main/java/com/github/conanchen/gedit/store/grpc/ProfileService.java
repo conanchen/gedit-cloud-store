@@ -1,5 +1,6 @@
 package com.github.conanchen.gedit.store.grpc;
 
+import com.github.conanchen.gedit.common.grpc.ListString;
 import com.github.conanchen.gedit.common.grpc.Location;
 import com.github.conanchen.gedit.common.grpc.Status;
 import com.github.conanchen.gedit.store.grpc.client.SearchClient;
@@ -142,10 +143,12 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         BeanUtils.copyProperties(profile,grpcStoreProfile);
         com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile = com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
                 .setDesc(Hope.that(profile.getDescr()).orElse("").value())
-                .addAllImages((Iterable<String>) Hope
+                .setPhotos(ListString.newBuilder()
+                        .addAllStrs((Iterable<String>) Hope
                         .that(gson.fromJson(profile.getImages(),listStrType))
                         .orElse(Collections.EMPTY_LIST)
                         .value())
+                        .build())
                 .setLocation(Location.newBuilder()
                         .setLat(Hope.that(profile.getLat()).orElse(0.0D).value())
                         .setLon(Hope.that(profile.getLon()).orElse(0.0D).value())
@@ -262,11 +265,11 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                         .value();
                 profile.setName(name);
                 break;
-            case IMAGES:
-                String iamges = Hope.that(req.getImages().toString())
+            case PHOTOS:
+                String images = Hope.that(req.getPhotos().toString())
                         .isTrue(n -> n.length() <= 4096,"图片介绍小于%s字",4096)
                         .value();
-                profile.setImages(iamges);
+                profile.setImages(images);
                 break;
             case LOCATION:
                 checkLocation(req.getLocation());
