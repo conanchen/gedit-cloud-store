@@ -64,7 +64,11 @@ public class StoreProfile {
     private Double pointsRate;
 
     @Column(columnDefinition = "varchar(4096)")
-    private String images;
+    private String photos;
+
+    @Column(columnDefinition = "varchar(64)")
+    private String tels;
+
 
     @Column(columnDefinition = "tinyint(1)")
     private Boolean active;

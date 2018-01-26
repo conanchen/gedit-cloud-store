@@ -292,7 +292,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 profile.setDetailAddress(detailAddress);
                 break;
             case TELS:
-                String tels = Hope.that(gson.toJson(req.getPhotos().getStrsList().asByteStringList()))
+                String tels = Hope.that(gson.toJson(req.getTels().getStrsList().asByteStringList()))
                         .isTrue(n -> n.length() <= 64,"电话小于%s字",64)
                         .value();
                 profile.setTels(tels);
