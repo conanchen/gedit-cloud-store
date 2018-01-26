@@ -145,7 +145,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .setDesc(Hope.that(profile.getDescr()).orElse("").value())
                 .setPhotos(ListString.newBuilder()
                         .addAllStrs((Iterable<String>) Hope
-                        .that(gson.fromJson(profile.getImages(),listStrType))
+                        .that(gson.fromJson(profile.getPhotos(),listStrType))
                         .orElse(Collections.EMPTY_LIST)
                         .value())
                         .build())
@@ -266,10 +266,10 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 profile.setName(name);
                 break;
             case PHOTOS:
-                String images = Hope.that(req.getPhotos().toString())
+                String photos = Hope.that(gson.toJson(req.getPhotos().getStrsList().asByteStringList()))
                         .isTrue(n -> n.length() <= 4096,"图片介绍小于%s字",4096)
                         .value();
-                profile.setImages(images);
+                profile.setPhotos(photos);
                 break;
             case LOCATION:
                 checkLocation(req.getLocation());
@@ -290,6 +290,12 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                         .isTrue(n -> n.length() <= 512,"详细地址不的超过%s字",512)
                         .value();
                 profile.setDetailAddress(detailAddress);
+                break;
+            case TELS:
+                String tels = Hope.that(gson.toJson(req.getPhotos().getStrsList().asByteStringList()))
+                        .isTrue(n -> n.length() <= 64,"电话小于%s字",64)
+                        .value();
+                profile.setTels(tels);
                 break;
             case PROPERTY_NOT_SET:
                 throw new UncheckedValidationException("property not set");
