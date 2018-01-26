@@ -23,7 +23,7 @@ public class HelloService extends HelloGrpc.HelloImplBase {
     public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
         final HelloReply.Builder replyBuilder = HelloReply.newBuilder()
                 .setStatus(Status.newBuilder()
-                        .setCode(io.grpc.Status.Code.OK.name())
+                        .setCode(Status.Code.OK)
                         .setDetails("Hello很高兴回复你，你的hello很温暖。")
                         .build())
                 .setUuid(UUID.randomUUID().toString())

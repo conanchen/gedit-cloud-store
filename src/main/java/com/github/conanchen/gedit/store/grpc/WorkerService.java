@@ -25,10 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.grpc.Status.Code.FAILED_PRECONDITION;
-import static io.grpc.Status.Code.INVALID_ARGUMENT;
-import static io.grpc.Status.Code.OK;
-
 
 @Slf4j
 @GRpcService
@@ -65,7 +61,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         }catch (UncheckedValidationException e){
             builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage())
                     .build());
         }
@@ -93,7 +89,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         }catch (UncheckedValidationException e){
             WorkshipResponse.Builder builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage())
                     .build());
             responseObserver.onNext(builder.build());
@@ -123,7 +119,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         }catch (UncheckedValidationException e){
             WorkshipResponse.Builder builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage())
                     .build());
             responseObserver.onNext(builder.build());
@@ -141,7 +137,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
             if (worker.isPresent()){
                 builder =  WorkshipResponse.newBuilder();
                 builder.setStatus(Status.newBuilder()
-                        .setCode(String.valueOf(FAILED_PRECONDITION.value()))
+                        .setCode(Status.Code.FAILED_PRECONDITION)
                         .setDetails("关系不存在")
                         .build());
                 responseObserver.onNext(builder.build());
@@ -153,7 +149,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         }catch (UncheckedValidationException e){
             builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage())
                     .build());
         }
@@ -183,7 +179,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         }catch (UncheckedValidationException e){
             WorkshipResponse.Builder builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage())
                     .build());
             responseObserver.onNext(builder.build());
@@ -204,7 +200,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         }catch (UncheckedValidationException e){
             builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage())
                     .build());
         }
@@ -215,7 +211,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
     private WorkshipResponse.Builder modelToResult(StoreProfile storeProfile,StoreWorker worker,int from,String details){
         WorkshipResponse.Builder builder =  WorkshipResponse.newBuilder();
         return builder.setStatus(Status.newBuilder()
-                .setCode(String.valueOf(OK.value()))
+                .setCode(Status.Code.OK)
                 .setDetails(details)
                 .build())
                 .setFrom(from)

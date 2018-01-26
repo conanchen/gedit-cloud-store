@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static io.grpc.Status.Code.*;
-
 @Slf4j
 @GRpcService
 public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
@@ -63,14 +61,14 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
             memberRepository.save(member);
             MembershipResponse response = MembershipResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(OK.value()))
+                            .setCode(Status.Code.OK)
                             .setDetails("新增成功").build())
                     .build();
             responseObserver.onNext(response);
         }catch (UncheckedValidationException e){
             MembershipResponse response = MembershipResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                            .setCode(Status.Code.INVALID_ARGUMENT)
                             .setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
@@ -95,7 +93,7 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
             Status status;
             if (storeMember == null){
                 status = Status.newBuilder()
-                        .setCode(String.valueOf(FAILED_PRECONDITION.value()))
+                        .setCode(Status.Code.FAILED_PRECONDITION)
                         .setDetails("关系不存在")
                         .build();
             }else{
@@ -126,7 +124,7 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
                 storeMember.setUpdatedDate(new Date());
                 memberRepository.save(storeMember);
                 status = Status.newBuilder()
-                        .setCode(String.valueOf(OK.value()))
+                        .setCode(Status.Code.INVALID_ARGUMENT)
                         .setDetails("新增成功")
                         .build();
             }
@@ -138,7 +136,7 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
         }catch (UncheckedValidationException e){
             MembershipResponse response = MembershipResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                            .setCode(Status.Code.INVALID_ARGUMENT)
                             .setDetails(e.getMessage()).build())
                     .build();
             responseObserver.onNext(response);
@@ -171,7 +169,7 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
             log.info("store get access success");
         }catch (UncheckedValidationException e){
             MembershipResponse response = MembershipResponse.newBuilder().setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage()))
                     .build();
             responseObserver.onNext(response);
@@ -204,7 +202,7 @@ public class MemberService extends StoreMemberApiGrpc.StoreMemberApiImplBase {
             log.info("store get access success");
         }catch (UncheckedValidationException e){
             MembershipResponse response = MembershipResponse.newBuilder().setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage()))
                     .build();
             responseObserver.onNext(response);

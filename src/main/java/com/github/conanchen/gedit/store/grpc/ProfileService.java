@@ -13,7 +13,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.martiansoftware.validation.Hope;
 import com.martiansoftware.validation.UncheckedValidationException;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import static io.grpc.Status.Code.*;
 
 @Slf4j
 @GRpcService
@@ -57,7 +54,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         }catch (UncheckedValidationException e){
             CreateStoreResponse response = CreateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                            .setCode(Status.Code.INVALID_ARGUMENT)
                             .setDetails(e.getMessage())
                             .build())
                     .build();
@@ -76,17 +73,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         }catch (UncheckedValidationException e){
             UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                            .setCode(Status.Code.INVALID_ARGUMENT)
                             .setDetails(e.getMessage()).build())
-                    .build();
-            responseObserver.onNext(response);
-        }catch (StatusRuntimeException e){
-            io.grpc.Status.Code code = e.getStatus().getCode();
-            UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
-                    .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(code.value()))
-                            .setDetails(e.getMessage())
-                            .build())
                     .build();
             responseObserver.onNext(response);
         }
@@ -105,7 +93,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         }catch (UncheckedValidationException e){
             StoreProfileResponse response = StoreProfileResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                    .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                    .setCode(Status.Code.INVALID_ARGUMENT)
                     .setDetails(e.getMessage()))
                     .build();
             responseObserver.onNext(response);
@@ -135,7 +123,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         }catch (UncheckedValidationException e){
             StoreProfileResponse response = StoreProfileResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(INVALID_ARGUMENT.value()))
+                            .setCode(Status.Code.INVALID_ARGUMENT)
                             .setDetails(e.getMessage()))
                     .build();
             responseObserver.onNext(response);
@@ -186,7 +174,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         StoreProfileResponse response = StoreProfileResponse.newBuilder()
                 .setStoreProfile(newGrpcStoreProfile)
                 .setStatus(Status.newBuilder()
-                        .setCode(String.valueOf(OK.value()))
+                        .setCode(Status.Code.OK)
                         .setDetails("success"))
                 .build();
         return response;
@@ -226,7 +214,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
                 .setName(storeProfile.getName())
                 .setUuid(storeProfile.getUuid())
                 .setOwnerUuid(storeProfile.getOwnerUuid())
-                .setStatus(Status.newBuilder().setCode(String.valueOf(OK.value())).setDetails("新增成功").build())
+                .setStatus(Status.newBuilder().setCode(Status.Code.OK).setDetails("新增成功").build())
                 .build();
     }
 
@@ -240,7 +228,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
             log.info("user [{}] not owned the store [{}]",claims.getSubject(),req.getUuid());
             UpdateStoreResponse response = UpdateStoreResponse.newBuilder()
                     .setStatus(Status.newBuilder()
-                            .setCode(String.valueOf(PERMISSION_DENIED.value()))
+                            .setCode(Status.Code.PERMISSION_DENIED)
                             .setDetails("permission_denied"))
                     .build();
             return response;
@@ -309,7 +297,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         return UpdateStoreResponse.newBuilder()
                 .setUuid(profile.getUuid())
                 .setLastUpdated(profile.getUpdatedDate().getTime())
-                .setStatus(Status.newBuilder().setCode(String.valueOf(OK.value())).setDetails("更新成功").build())
+                .setStatus(Status.newBuilder().setCode(Status.Code.OK).setDetails("更新成功").build())
                 .build();
     }
 
