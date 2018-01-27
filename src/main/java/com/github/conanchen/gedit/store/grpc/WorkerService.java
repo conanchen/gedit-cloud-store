@@ -195,8 +195,24 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
             Claims claims = AuthInterceptor.USER_CLAIMS.get();
             String workerUuid = claims.getSubject();
             Optional<StoreWorker> worker = workerRepository.findByWorkerUuidAndActiveIsTrue(workerUuid);
-            StoreProfile storeProfile = (StoreProfile)profileRepository.findOne(worker.get().getStoreUuid());
-            builder = modelToResult(storeProfile,worker.get(),0,"success");
+            if (worker.isPresent()){
+                Optional<StoreProfile> storeProfile = (Optional<StoreProfile>) profileRepository.findOne(worker.get().getStoreUuid());
+                if (storeProfile.isPresent()) {
+                    builder = modelToResult(storeProfile.get(), worker.get(), 0, "success");
+                }else{
+                    builder =  WorkshipResponse.newBuilder();
+                    builder.setStatus(Status.newBuilder()
+                            .setCode(Status.Code.NOT_FOUND)
+                            .setDetails("店铺不存在")
+                            .build());
+                }
+            }else{
+                builder =  WorkshipResponse.newBuilder();
+                builder.setStatus(Status.newBuilder()
+                        .setCode(Status.Code.NOT_FOUND)
+                        .setDetails("目前没有工作的店铺")
+                        .build());
+            }
         }catch (UncheckedValidationException e){
             builder =  WorkshipResponse.newBuilder();
             builder.setStatus(Status.newBuilder()
