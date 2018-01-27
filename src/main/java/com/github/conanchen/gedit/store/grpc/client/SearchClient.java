@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 
 @Component
 public class SearchClient {
+    private static final String EMPTY_STR = "";
     @Value("${search.uri}")
     private String uri;
     //channel
@@ -29,7 +30,7 @@ public class SearchClient {
 
     public void index(StoreProfile storeProfile){
         searchApiBlockingStub.index(IndexStoreRequest.newBuilder()
-                .setDesc(storeProfile.getDescr())
+                .setDesc(storeProfile.getDescr() == null ? EMPTY_STR : storeProfile.getDescr())
                 .setPointsRate(storeProfile.getPointsRate() == null ? 0.0D : storeProfile.getPointsRate())
                 .setLocation(Location.newBuilder()
                         .setLat(storeProfile.getLat() ==  null ? 0.0D : storeProfile.getLat())
