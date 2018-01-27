@@ -35,7 +35,7 @@ import java.util.List;
 @GRpcService
 public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase {
 
-    private static final Type listStrType = new TypeToken<ArrayList<String>>() {}.getType();
+    private static final Type listStrType = new TypeToken<Iterable<String>>() {}.getType();
     private static final Gson gson = new GsonBuilder().create();
 
     private static final String EMPTY_STRING = "";
@@ -80,6 +80,10 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
             responseObserver.onNext(response);
         }
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void upsertWithAampPoi(UpsertWithAampPoiRequest request, StreamObserver<UpsertWithAampPoiResponse> responseObserver) {
     }
 
     @Override
@@ -144,10 +148,10 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         com.github.conanchen.gedit.store.profile.grpc.StoreProfile newGrpcStoreProfile = com.github.conanchen.gedit.store.profile.grpc.StoreProfile.newBuilder(grpcStoreProfile)
                 .setDesc(Hope.that(profile.getDescr()).orElse("").value())
                 .setPhotos(ListString.newBuilder()
-                        .addAllStrs((Iterable<String>) Hope
-                        .that(gson.fromJson(profile.getPhotos(),listStrType))
-                        .orElse(Collections.EMPTY_LIST)
-                        .value())
+                        .addAllStrs(
+                                profile.getPhotos() == null
+                                        ? Collections.EMPTY_LIST
+                                        : gson.fromJson(profile.getPhotos(),listStrType))
                         .build())
                 .setLocation(Location.newBuilder()
                         .setLat(Hope.that(profile.getLat()).orElse(0.0D).value())
