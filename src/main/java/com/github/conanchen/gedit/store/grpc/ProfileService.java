@@ -196,6 +196,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         StoreProfile storeProfile = StoreProfile.builder()
                 .districtUuid(req.getDistrictUuid())
                 .introducerUuid(req.getIntroducerUuid())
+                .name(req.getName())
                 .ownerUuid(claims.getSubject())
                 .active(false) //默认 false
                 .detailAddress(req.getDetailAddress())
