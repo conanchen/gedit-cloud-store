@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -82,6 +83,10 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
             Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));
             StoreProfile storeProfile = (StoreProfile)profileRepository.findOne(storeUuid);
             List<StoreWorker> workerList = workerRepository.findByStoreUuid(storeUuid,pageable);
+            if (storeProfile == null || CollectionUtils.isEmpty(workerList)){
+                responseObserver.onCompleted();
+                return;
+            }
             for (StoreWorker worker : workerList){
                 responseObserver.onNext(modelToResult(storeProfile,worker,tempForm++,"success").build());
                 try { Thread.sleep(500); } catch (InterruptedException e) {}
@@ -109,12 +114,17 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
             int tempForm = from == 0 ? 0 : from + 1;
             Pageable pageable = new OffsetBasedPageRequest(tempForm,size,new Sort(Sort.Direction.ASC,"createdDate"));
             List<StoreWorker> workerList = workerRepository.findByWorkerUuid(workerUuid,pageable);
-            List<String> storeUuids = EntityUtils.createFieldList(workerList,"storeUuid");
-            List<StoreProfile> storeProfileList = profileRepository.findAll(storeUuids);
-            Map<String,StoreProfile> storeProfileMap = EntityUtils.createEntityMapByString(storeProfileList,"uuid");
-            for (StoreWorker worker : workerList){
-                responseObserver.onNext(modelToResult(storeProfileMap.get(worker.getStoreUuid()),worker,tempForm++,"success").build());
-                try { Thread.sleep(500); } catch (InterruptedException e) {}
+            if (CollectionUtils.isEmpty(workerList)){
+                responseObserver.onCompleted();
+                return;
+            }else{
+                List<String> storeUuids = EntityUtils.createFieldList(workerList,"storeUuid");
+                List<StoreProfile> storeProfileList = profileRepository.findAll(storeUuids);
+                Map<String,StoreProfile> storeProfileMap = EntityUtils.createEntityMapByString(storeProfileList,"uuid");
+                for (StoreWorker worker : workerList){
+                    responseObserver.onNext(modelToResult(storeProfileMap.get(worker.getStoreUuid()),worker,tempForm++,"success").build());
+                    try { Thread.sleep(500); } catch (InterruptedException e) {}
+                }
             }
         }catch (UncheckedValidationException e){
             WorkshipResponse.Builder builder =  WorkshipResponse.newBuilder();
@@ -134,13 +144,7 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
             String workerUuid = Hope.that(request.getWorkerUuid()).named("workerUuid").isNotNullOrEmpty().value();
             String storeUuid = Hope.that(request.getStoreUuid()).named("storeUuid").isNotNullOrEmpty().value();
             Optional<StoreWorker> worker = workerRepository.findByStoreUuidAndWorkerUuidAndActiveIsTrue(storeUuid,workerUuid);
-            if (worker.isPresent()){
-                builder =  WorkshipResponse.newBuilder();
-                builder.setStatus(Status.newBuilder()
-                        .setCode(Status.Code.FAILED_PRECONDITION)
-                        .setDetails("关系不存在")
-                        .build());
-                responseObserver.onNext(builder.build());
+            if (!worker.isPresent()){
                 responseObserver.onCompleted();
                 return;
             }
@@ -162,11 +166,15 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
         try{
             Claims claims = AuthInterceptor.USER_CLAIMS.get();
             String workerUuid = claims.getSubject();
-            List<StoreWorker> workerList = null;
+            List<StoreWorker> workerList;
             if (request.getLastUpdated() == 0L){
                 workerList = workerRepository.findByWorkerUuid(workerUuid);
             }else{
                 workerList = workerRepository.findByWorkerUuidAndCreatedDateGreaterThan(workerUuid,new Date(request.getLastUpdated()));
+            }
+            if (CollectionUtils.isEmpty(workerList)){
+                responseObserver.onCompleted();
+                return;
             }
             List<String> storeUuids = EntityUtils.createFieldList(workerList,"storeUuid");
             List<StoreProfile> storeProfileList = profileRepository.findAll(storeUuids);
@@ -196,9 +204,9 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
             String workerUuid = claims.getSubject();
             Optional<StoreWorker> worker = workerRepository.findByWorkerUuidAndActiveIsTrue(workerUuid);
             if (worker.isPresent()){
-                Optional<StoreProfile> storeProfile = (Optional<StoreProfile>) profileRepository.findOne(worker.get().getStoreUuid());
-                if (storeProfile.isPresent()) {
-                    builder = modelToResult(storeProfile.get(), worker.get(), 0, "success");
+                StoreProfile storeProfile = (StoreProfile)profileRepository.findOne(worker.get().getStoreUuid());
+                if (storeProfile != null) {
+                    builder = modelToResult(storeProfile, worker.get(), 0, "success");
                 }else{
                     builder =  WorkshipResponse.newBuilder();
                     builder.setStatus(Status.newBuilder()
@@ -207,11 +215,8 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
                             .build());
                 }
             }else{
-                builder =  WorkshipResponse.newBuilder();
-                builder.setStatus(Status.newBuilder()
-                        .setCode(Status.Code.NOT_FOUND)
-                        .setDetails("目前没有工作的店铺")
-                        .build());
+                responseObserver.onCompleted();
+                return;
             }
         }catch (UncheckedValidationException e){
             builder =  WorkshipResponse.newBuilder();
