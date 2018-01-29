@@ -34,13 +34,13 @@ public class UserClient {
                 .usePlaintext(true)
                 .build();
         userProfileApiStub = UserProfileApiGrpc.newStub(channel);
-        userProfileApiStub = MetadataUtils.attachHeaders(userProfileApiStub, AuthInterceptor.HEADERS.get());
     }
     public interface FindByMobileCallBack{
         void onFindByMobileResponse(UserProfileResponse response);
     }
 
     public void findByMobile(String mobile, FindByMobileCallBack callBack){
+        userProfileApiStub = MetadataUtils.attachHeaders(userProfileApiStub, AuthInterceptor.HEADERS.get());
         userProfileApiStub.findByMobile(FindByMobileRequest.newBuilder()
                         .setMobile(mobile)
                         .build(),
