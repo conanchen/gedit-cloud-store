@@ -4,11 +4,13 @@ import com.github.conanchen.gedit.common.grpc.ListString;
 import com.github.conanchen.gedit.common.grpc.Location;
 import com.github.conanchen.gedit.common.grpc.Status;
 import com.github.conanchen.gedit.store.grpc.client.SearchClient;
+import com.github.conanchen.gedit.store.grpc.client.UserClient;
 import com.github.conanchen.gedit.store.grpc.interceptor.AuthInterceptor;
 import com.github.conanchen.gedit.store.model.StoreProfile;
 import com.github.conanchen.gedit.store.profile.grpc.*;
 import com.github.conanchen.gedit.store.repository.StoreProfileRepository;
 import com.github.conanchen.gedit.store.repository.page.OffsetBasedPageRequest;
+import com.github.conanchen.gedit.user.profile.grpc.UserProfileResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -45,6 +47,9 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
 
     @Autowired
     private SearchClient searchClient;
+
+    @Autowired
+    private UserClient userClient;
 
     @Override
     public void create(CreateStoreRequest request, StreamObserver<CreateStoreResponse> responseObserver) {
@@ -190,10 +195,25 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     private CreateStoreResponse checkCreate(CreateStoreRequest req) {
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
+        final StoreProfile.StoreProfileBuilder builder = StoreProfile.builder();
+        if (StringUtils.isEmpty(req.getIntroducerMobile())){
+            String mobile = Hope.that(req.getIntroducerMobile()).named("introducerMobile")
+                    .isNotNullOrEmpty()
+                    .matches("^(13|14|15|16|17|18|19)\\d{9}$")
+                    .value();
+            userClient.findByMobile(mobile, new UserClient.FindByMobileCallBack(){
+
+                @Override
+                public void onFindByMobileResponse(UserProfileResponse response) {
+                    builder.introducerUuid(response.getUserProfile().getUuid());
+                }
+            });
+
+        }
         //common check
         createCheck(req.getName(), req.getDetailAddress(), req.getLocation());
         Date now = new Date();
-        StoreProfile storeProfile = StoreProfile.builder()
+        StoreProfile storeProfile = builder
                 .name(req.getName())
                 .ownerUuid(claims.getSubject())
                 .active(false) //默认 false

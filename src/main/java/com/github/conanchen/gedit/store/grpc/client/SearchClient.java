@@ -48,7 +48,7 @@ public class SearchClient {
 
                     @Override
                     public void onNext(IndexStoreResponse value) {
-                        log.info("success");
+                        log.info("Next");
                     }
 
                     @Override
