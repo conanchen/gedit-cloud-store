@@ -30,6 +30,7 @@ import java.util.Optional;
 @Slf4j
 @GRpcService
 public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
+    private static final String EMPTY_STRING = "";
     @Resource
     private StoreWorkerRepository workerRepository;
     @Resource
@@ -241,10 +242,10 @@ public class WorkerService extends StoreWorkerApiGrpc.StoreWorkerApiImplBase {
                         .setCreated(worker.getCreatedDate().getTime())
                         .setLastUpdated(worker.getUpdatedDate().getTime())
                         .setLocation(Location.newBuilder()
-                                .setLat(storeProfile.getLat())
-                                .setLon(storeProfile.getLon())
+                                .setLat(storeProfile.getLat() == null ? 0.0D : storeProfile.getLat())
+                                .setLon(storeProfile.getLon() == null ? 0.0D : storeProfile.getLon())
                                 .build())
-                        .setStoreLogo(storeProfile.getLogo())
+                        .setStoreLogo(storeProfile.getLogo() == null ? EMPTY_STRING : storeProfile.getLogo())
                         .setStoreName(storeProfile.getName())
                         .setUserUuid(worker.getWorkerUuid())
                         .setStoreUuid(worker.getStoreUuid())
