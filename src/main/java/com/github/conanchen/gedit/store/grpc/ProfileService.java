@@ -191,16 +191,13 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         Claims claims = AuthInterceptor.USER_CLAIMS.get();
         log.info(String.format("user [%s], request [%s]", claims.getSubject(), gson.toJson(req)));
         //common check
-        createCheck(req.getName(), req.getDetailAddress(), req.getDistrictUuid(), req.getLocation());
+        createCheck(req.getName(), req.getDetailAddress(), req.getLocation());
         Date now = new Date();
         StoreProfile storeProfile = StoreProfile.builder()
-                .districtUuid(req.getDistrictUuid())
-                .introducerUuid(req.getIntroducerUuid())
                 .name(req.getName())
                 .ownerUuid(claims.getSubject())
                 .active(false) //默认 false
                 .detailAddress(req.getDetailAddress())
-                .districtUuid(req.getDistrictUuid())
                 .lat(req.getLocation().getLat())
                 .lon(req.getLocation().getLon())
                 .amapAdCode(req.getAmapAdCode())
@@ -320,7 +317,7 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
     }
 
 
-    private void createCheck(String name,String detailAddress, String districtId,Location location){
+    private void createCheck(String name,String detailAddress,Location location){
 
         //name 长度限制
         Hope.that(name).named("name").isNotNullOrEmpty()
@@ -329,8 +326,8 @@ public class ProfileService extends StoreProfileApiGrpc.StoreProfileApiImplBase 
         Hope.that(detailAddress).orElse(EMPTY_STRING).isNotNullOrEmpty()
                 .isTrue(n -> n.length() <= 512,"详细地址不能超过%s个字",512);
         //districtUuid
-        Hope.that(districtId).orElse(EMPTY_STRING).isNotNullOrEmpty()
-                .isTrue(n -> n.length() <= 6,"地区码为%s位数字,如有必要请联系工程师",6);
+        /*Hope.that(districtId).orElse(EMPTY_STRING).isNotNullOrEmpty()
+                .isTrue(n -> n.length() <= 6,"地区码为%s位数字,如有必要请联系工程师",6);*/
         //location
         checkLocation(location);
     }
