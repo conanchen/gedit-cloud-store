@@ -1,4 +1,4 @@
-package com.github.conanchen.gedit.store.grpc;
+package com.github.conanchen.gedit.hello.grpc;
 
 import com.github.conanchen.gedit.common.grpc.Status;
 import com.github.conanchen.gedit.hello.grpc.HelloGrpc;
